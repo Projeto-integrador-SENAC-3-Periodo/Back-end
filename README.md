@@ -115,7 +115,7 @@ exception/
 ### Clonar o repositório
 
 ```bash
-git clone https://github.com/seu-usuario/seu-repositorio.git
+git clone https://github.com/seu-usuario/seu-repositorio.git](https://github.com/Projeto-integrador-SENAC-3-Periodo/Back-end.git)
 ```
 
 
