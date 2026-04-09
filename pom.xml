@@ -9,9 +9,9 @@
     <relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>br.edu.pe.senac.pi-tads049</groupId>
-	<artifactId>sprig</artifactId>
+	<artifactId>backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>sprig</name>
+	<name>backend</name>
 	<description>Backend do projeto integrador</description>
 	<url/>
 	<licenses>

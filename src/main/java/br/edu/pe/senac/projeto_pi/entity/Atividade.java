@@ -21,8 +21,9 @@ public class Atividade {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idAtividade;
 
+    /** Null = atividade de catálogo (criada por admin/coord.); o aluno envia comprovação depois. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_id_aluno", nullable = false)
+    @JoinColumn(name = "fk_id_aluno", nullable = true)
     private Users aluno;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -44,6 +45,14 @@ public class Atividade {
 
     @Column(nullable = false)
     private Integer pontos = 0;
+
+    /** Ex.: "Palestra", "Workshop" — livre para exibição. */
+    @Column(length = 120)
+    private String categoria;
+
+    /** certificate | photo | document — alinhado ao front. */
+    @Column(name = "tipo_comprovação", length = 20)
+    private String tipoComprovação;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -42,12 +42,12 @@ public class UsersController {
     @PostMapping("/cadastro")
     public ResponseEntity<?> cadastrar(@Valid @RequestBody CadastroRequest request) {
         try {
-
-            Users usuario = new Users(
-                request.getNome(),
-                request.getEmail(),
-                request.getPerfil(),
-                request.getSenha(), null
+                Users usuario = new Users(
+                	    request.getNome(),
+                	    request.getEmail(),
+                	    request.getPerfil(),
+                	    null, 
+                	    null
             );
 
             // Se for aluno adiciona matrícula

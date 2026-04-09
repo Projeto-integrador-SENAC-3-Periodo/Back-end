@@ -21,6 +21,10 @@ public class AtividadeResponseDTO {
     private String descricao;
     private Integer horasSolicitadas;
     private Integer pontos;
+    private String categoria;
+    private String tipoComprovação;
+    /** true quando é modelo de catálogo (sem aluno na entidade). */
+    private Boolean catalogo;
     private Atividade.StatusAtividade status;
     private LocalDateTime dataSubmissao;
     private LocalDateTime dataValidacao;

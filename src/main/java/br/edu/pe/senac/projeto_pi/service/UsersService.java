@@ -1,5 +1,6 @@
 package br.edu.pe.senac.projeto_pi.service;
 
+import java.security.SecureRandom;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.edu.pe.senac.projeto_pi.dto.UsuarioUpdateRequest;
 import br.edu.pe.senac.projeto_pi.dto.UsersResponseDTO;
 import br.edu.pe.senac.projeto_pi.entity.Perfil;
 import br.edu.pe.senac.projeto_pi.entity.Users;
@@ -14,12 +16,13 @@ import br.edu.pe.senac.projeto_pi.repositories.UsersRepository;
 
 @Service
 public class UsersService {
+
     private final UsersRepository usersRepository;
     private final PasswordEncoder passwordEncoder;
-    
+
     @Autowired
     private EmailService emailService;
-    
+
     @Autowired
     private LogSistemaService logService;
 
@@ -28,6 +31,20 @@ public class UsersService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    // GERA SENHA PROVISÓRIA
+    private String gerarSenhaProvisoria() {
+        String caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder senha = new StringBuilder();
+        SecureRandom random = new SecureRandom();
+
+        for (int i = 0; i < 8; i++) {
+            senha.append(caracteres.charAt(random.nextInt(caracteres.length())));
+        }
+
+        return senha.toString();
+    }
+
+    // CADASTRO DE USUÁRIO COM SENHA AUTOMÁTICA
     @Transactional
     public Users cadastrarUser(Users usuario) {
 
@@ -35,7 +52,6 @@ public class UsersService {
             throw new RuntimeException("E-mail já cadastrado!");
         }
 
-        // Se for aluno, matrícula é obrigatória
         if (usuario.getPerfil() == Perfil.ALUNO) {
 
             if (usuario.getMatricula() == null || usuario.getMatricula().isEmpty()) {
@@ -46,14 +62,17 @@ public class UsersService {
                 throw new RuntimeException("Matrícula já cadastrada.");
             }
         }
-        
-        String senhaProvisoria = usuario.getSenha();
 
-        usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
+        // GERA UMA ÚNICA SENHA
+        String senhaProvisoria = gerarSenhaProvisoria();
+
+        // CRIPTOGRAFA E SALVA
+        usuario.setSenha(passwordEncoder.encode(senhaProvisoria));
         usuario.setSenhaProvisoria(true);
 
         Users novoUsuario = usersRepository.save(usuario);
 
+        // ENVIA A MESMA SENHA POR EMAIL
         emailService.enviarCredenciais(
             novoUsuario.getNome(),
             novoUsuario.getEmail(),
@@ -65,23 +84,21 @@ public class UsersService {
         return novoUsuario;
     }
 
+    // ALTERAR SENHA
     @Transactional
     public void alterarSenha(String email, String senhaAtual, String novaSenha, String confirmacaoNovaSenha) {
 
         Users usuario = usersRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
 
-        // Verifica se a senha atual está correta
         if (!passwordEncoder.matches(senhaAtual, usuario.getSenha())) {
             throw new RuntimeException("Senha atual incorreta.");
         }
 
-        // Verifica se a nova senha e a confirmação são iguais
         if (!novaSenha.equals(confirmacaoNovaSenha)) {
             throw new RuntimeException("Nova senha e confirmação não coincidem.");
         }
 
-        // Verifica se a nova senha é diferente da atual
         if (passwordEncoder.matches(novaSenha, usuario.getSenha())) {
             throw new RuntimeException("A nova senha não pode ser igual à senha atual.");
         }
@@ -93,7 +110,8 @@ public class UsersService {
 
         logService.registrar(usuario, "Alterou senha", "Users");
     }
-    
+
+    // LISTAR USUÁRIOS
     @Transactional
     public List<UsersResponseDTO> listarTodos() {
         return usersRepository.findAll()
@@ -106,5 +124,79 @@ public class UsersService {
                 u.getMatricula()
             ))
             .toList();
+    }
+
+    // ATUALIZAR USUÁRIO
+    @Transactional
+    public UsersResponseDTO atualizar(Long id, UsuarioUpdateRequest req) {
+
+        Users u = usersRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+
+        if (req.getNome() != null && !req.getNome().isBlank()) {
+            u.setNome(req.getNome().trim());
+        }
+
+        if (req.getEmail() != null && !req.getEmail().isBlank()) {
+            String email = req.getEmail().trim().toLowerCase();
+
+            usersRepository.findByEmail(email).ifPresent(other -> {
+                if (!other.getId().equals(id)) {
+                    throw new RuntimeException("E-mail já cadastrado para outro usuário.");
+                }
+            });
+
+            u.setEmail(email);
+        }
+
+        if (req.getPerfil() != null) {
+            u.setPerfil(req.getPerfil());
+        }
+
+        if (u.getPerfil() != Perfil.ALUNO) {
+            u.setMatricula(null);
+        } else if (req.getMatricula() != null) {
+            String mat = req.getMatricula().trim();
+
+            if (mat.isEmpty()) {
+                throw new RuntimeException("Aluno deve possuir matrícula.");
+            }
+
+            usersRepository.findByMatricula(mat).ifPresent(other -> {
+                if (!other.getId().equals(id)) {
+                    throw new RuntimeException("Matrícula já cadastrada.");
+                }
+            });
+
+            u.setMatricula(mat);
+        }
+
+        if (req.getSenha() != null && !req.getSenha().isBlank()) {
+            u.setSenha(passwordEncoder.encode(req.getSenha()));
+            u.setSenhaProvisoria(false);
+        }
+
+        usersRepository.save(u);
+
+        logService.registrar(u, "Usuário atualizado pelo administrador", "Users");
+
+        return new UsersResponseDTO(
+                u.getId(),
+                u.getNome(),
+                u.getEmail(),
+                u.getPerfil().name(),
+                u.getMatricula()
+        );
+    }
+
+    // REMOVER USUÁRIO
+    @Transactional
+    public void remover(Long id) {
+        Users u = usersRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+
+        usersRepository.delete(u);
+
+        logService.registrarAcaoAtual("Excluiu usuário id " + id, "Users");
     }
 }
