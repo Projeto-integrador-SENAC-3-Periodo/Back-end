@@ -1,10 +1,13 @@
 package br.edu.pe.senac.projeto_pi.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.edu.pe.senac.projeto_pi.dto.UsersResponseDTO;
 import br.edu.pe.senac.projeto_pi.entity.Perfil;
 import br.edu.pe.senac.projeto_pi.entity.Users;
 import br.edu.pe.senac.projeto_pi.repositories.UsersRepository;
@@ -89,5 +92,18 @@ public class UsersService {
         usersRepository.save(usuario);
 
         logService.registrar(usuario, "Alterou senha", "Users");
+    }
+    
+    @Transactional
+    public List<UsersResponseDTO> listarTodos() {
+        return usersRepository.findAll()
+            .stream()
+            .map(u -> new UsersResponseDTO(
+                u.getId(),
+                u.getNome(),
+                u.getEmail(),
+                u.getPerfil().name()
+            ))
+            .toList();
     }
 }
