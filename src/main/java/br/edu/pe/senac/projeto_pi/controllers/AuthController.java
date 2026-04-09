@@ -61,8 +61,13 @@ public class AuthController {
             String token = jwtUtil.generateToken(userDetails, "ROLE_" + usuario.getPerfil().name());
 
             LoginResponseDTO response = new LoginResponseDTO(
-                token, "Bearer", usuario.getPerfil().name(),
-                usuario.getNome(), usuario.getEmail(),
+                usuario.getId(),
+                usuario.getMatricula(),
+                token,
+                "Bearer",
+                usuario.getPerfil().name(),
+                usuario.getNome(),
+                usuario.getEmail(),
                 System.currentTimeMillis() + jwtUtil.getExpirationTime(),
                 usuario.isSenhaProvisoria()
             );

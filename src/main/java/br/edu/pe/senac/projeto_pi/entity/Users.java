@@ -3,6 +3,8 @@ package br.edu.pe.senac.projeto_pi.entity;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,6 +32,7 @@ public class Users{
     private Perfil perfil;
 
     @Column(nullable = false)
+    @JsonIgnore
     private String senha;
 
     @Column(nullable = false)

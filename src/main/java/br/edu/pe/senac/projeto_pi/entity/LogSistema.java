@@ -20,7 +20,7 @@ public class LogSistema {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idLogS;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_id_user")
     private Users user;
 

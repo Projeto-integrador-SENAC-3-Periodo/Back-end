@@ -102,7 +102,8 @@ public class UsersService {
                 u.getId(),
                 u.getNome(),
                 u.getEmail(),
-                u.getPerfil().name()
+                u.getPerfil().name(),
+                u.getMatricula()
             ))
             .toList();
     }
