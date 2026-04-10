@@ -13,5 +13,6 @@ public class AtividadeRequestDTO {
     private Integer horasSolicitadas;
     private Integer pontos;
     private String categoria;
+    private Long idAluno;
 
 }

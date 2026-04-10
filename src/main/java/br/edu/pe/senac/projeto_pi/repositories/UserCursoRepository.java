@@ -10,4 +10,5 @@ import java.util.List;
 public interface UserCursoRepository extends JpaRepository<UserCurso, Long> {
     List<UserCurso> findByCursoIdC(Long cursoId);
     boolean existsByUserIdAndCursoIdC(Long userId, Long cursoId);
+    List<UserCurso> findByUserId(Long userId);
 }

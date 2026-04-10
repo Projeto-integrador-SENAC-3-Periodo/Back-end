@@ -45,7 +45,11 @@ public class AtividadeService {
 
     @Transactional
     public AtividadeResponseDTO create(AtividadeRequestDTO atividadeRequestDTO) {
-        Users aluno = userRepository.findById(atividadeRequestDTO.getIdAluno()).orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
+    	Users aluno = null;
+    	if (atividadeRequestDTO.getIdAluno() != null) {
+    	    aluno = userRepository.findById(atividadeRequestDTO.getIdAluno())
+    	        .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
+    	}
         Curso curso = cursoRepository.findById(atividadeRequestDTO.getIdCurso()).orElseThrow(() -> new RuntimeException("Curso não encontrado"));
         TipoAtividade tipoAtividade = tipoAtividadeRepository.findById(atividadeRequestDTO.getIdTipoAtividade()).orElseThrow(() -> new RuntimeException("Tipo de Atividade não encontrado"));
 
@@ -84,11 +88,14 @@ public class AtividadeService {
     @Transactional
     public AtividadeResponseDTO update(Long id, AtividadeRequestDTO atividadeRequestDTO) {
         Atividade atividade = atividadeRepository.findById(id).orElseThrow(() -> new RuntimeException("Atividade não encontrada"));
-        Users aluno = userRepository.findById(atividadeRequestDTO.getIdAluno()).orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
+        if (atividadeRequestDTO.getIdAluno() != null) {
+            Users aluno = userRepository.findById(atividadeRequestDTO.getIdAluno())
+                .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
+            atividade.setAluno(aluno);
+        }
         Curso curso = cursoRepository.findById(atividadeRequestDTO.getIdCurso()).orElseThrow(() -> new RuntimeException("Curso não encontrado"));
         TipoAtividade tipoAtividade = tipoAtividadeRepository.findById(atividadeRequestDTO.getIdTipoAtividade()).orElseThrow(() -> new RuntimeException("Tipo de Atividade não encontrado"));
 
-        atividade.setAluno(aluno);
         atividade.setCurso(curso);
         atividade.setTipoAtividade(tipoAtividade);
         atividade.setTitulo(atividadeRequestDTO.getTitulo());
@@ -117,8 +124,10 @@ public class AtividadeService {
         atividade.setDataValidacao(LocalDateTime.now());
         atividade = atividadeRepository.save(atividade);
 
-        criarNotificacao(atividade.getAluno(), "Atividade aprovada",
+        if (atividade.getAluno() != null) {
+            criarNotificacao(atividade.getAluno(), "Atividade aprovada",
                 "Sua atividade \"" + atividade.getTitulo() + "\" foi aprovada.");
+        }
         logService.registrarAcaoAtual("Aprovou atividade: " + atividade.getTitulo(), "Atividade");
         return toResponseDTO(atividade);
     }
@@ -130,8 +139,10 @@ public class AtividadeService {
         atividade.setDataValidacao(LocalDateTime.now());
         atividade = atividadeRepository.save(atividade);
 
-        criarNotificacao(atividade.getAluno(), "Atividade reprovada",
+        if (atividade.getAluno() != null) {
+            criarNotificacao(atividade.getAluno(), "Atividade reprovada",
                 "Sua atividade \"" + atividade.getTitulo() + "\" foi reprovada.");
+        }
         logService.registrarAcaoAtual("Reprovou atividade: " + atividade.getTitulo(), "Atividade");
         return toResponseDTO(atividade);
     }
@@ -150,8 +161,10 @@ public class AtividadeService {
     private AtividadeResponseDTO toResponseDTO(Atividade atividade) {
         AtividadeResponseDTO dto = new AtividadeResponseDTO();
         dto.setId(atividade.getIdAtividade());
-        dto.setIdAluno(atividade.getAluno().getId());
-        dto.setNomeAluno(atividade.getAluno().getNome());
+        if (atividade.getAluno() != null) {
+            dto.setIdAluno(atividade.getAluno().getId());
+            dto.setNomeAluno(atividade.getAluno().getNome());
+        }
         dto.setIdCurso(atividade.getCurso().getIdC());
         dto.setNomeCurso(atividade.getCurso().getNome());
         dto.setIdTipoAtividade(atividade.getTipoAtividade().getIdTA());

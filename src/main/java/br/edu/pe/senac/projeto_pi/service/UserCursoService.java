@@ -57,7 +57,14 @@ public class UserCursoService {
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
-
+    
+    @Transactional(readOnly = true)
+    public List<UsuarioCursoResponseDTO> listarCursosDoAluno(Long alunoId) {
+        return userCursoRepository.findByUserId(alunoId).stream()
+                .map(this::toResponseDTO)
+                .collect(Collectors.toList());
+    }
+    
     private UsuarioCursoResponseDTO toResponseDTO(UserCurso uc) {
         UsuarioCursoResponseDTO dto = new UsuarioCursoResponseDTO();
         dto.setId(uc.getIdUC());

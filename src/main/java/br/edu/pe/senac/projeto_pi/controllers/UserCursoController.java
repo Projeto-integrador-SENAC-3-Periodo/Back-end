@@ -24,6 +24,12 @@ public class UserCursoController {
             @RequestBody UsuarioCursoRequestDTO dto) {
         return ResponseEntity.ok(userCursoService.vincularAluno(cursoId, dto));
     }
+    
+    @GetMapping("/aluno/{alunoId}")
+    @PreAuthorize("hasAnyRole('ALUNO', 'COORDENADOR', 'ADMINISTRADOR')")
+    public ResponseEntity<List<UsuarioCursoResponseDTO>> listarCursosDoAluno(@PathVariable Long alunoId) {
+        return ResponseEntity.ok(userCursoService.listarCursosDoAluno(alunoId));
+    }
 
     @GetMapping("/{cursoId}/alunos")
     @PreAuthorize("hasAnyRole('COORDENADOR', 'ADMINISTRADOR')")
