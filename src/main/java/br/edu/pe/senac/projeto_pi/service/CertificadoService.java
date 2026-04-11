@@ -5,6 +5,10 @@ import br.edu.pe.senac.projeto_pi.entity.Atividade;
 import br.edu.pe.senac.projeto_pi.entity.Certificados;
 import br.edu.pe.senac.projeto_pi.repositories.AtividadeRepository;
 import br.edu.pe.senac.projeto_pi.repositories.CertificadoRepository;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +42,12 @@ public class CertificadoService {
                 .orElseThrow(() -> new RuntimeException("Certificado não encontrado"));
         return toResponseDTO(cert);
     }
-
+    @Transactional(readOnly = true)
+    public List<CertificadoResponseDTO> listByAluno(Long alunoId) {
+        return certificadoRepository.findByAlunoId(alunoId).stream()
+                .map(this::toResponseDTO)
+                .collect(Collectors.toList());
+    }
     private CertificadoResponseDTO toResponseDTO(Certificados c) {
         CertificadoResponseDTO dto = new CertificadoResponseDTO();
         dto.setId(c.getIdCertificado());
