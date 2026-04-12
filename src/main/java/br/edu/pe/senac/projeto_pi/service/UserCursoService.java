@@ -47,8 +47,20 @@ public class UserCursoService {
         userCurso.setPapel(dto.getPapel() != null ? dto.getPapel() : UserCurso.Papel.ALUNO);
 
         userCurso = userCursoRepository.save(userCurso);
-        logService.registrarAcaoAtual("Vinculou usuário " + user.getNome() + " ao curso " + curso.getNome(), "UserCurso");
+        logService.registrarAcaoAtual(
+            "Vinculou usuário " + user.getNome() + " ao curso " + curso.getNome(), "UserCurso");
         return toResponseDTO(userCurso);
+    }
+
+    @Transactional
+    public void desvincularAluno(Long cursoId, Long alunoId) {
+        UserCurso uc = userCursoRepository.findByUserIdAndCursoIdC(alunoId, cursoId)
+                .orElseThrow(() -> new RuntimeException("Vínculo não encontrado"));
+        Users user = uc.getUser();
+        Curso curso = uc.getCurso();
+        userCursoRepository.delete(uc);
+        logService.registrarAcaoAtual(
+            "Desvinculou usuário " + user.getNome() + " do curso " + curso.getNome(), "UserCurso");
     }
 
     @Transactional(readOnly = true)
@@ -57,14 +69,14 @@ public class UserCursoService {
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
-    
+
     @Transactional(readOnly = true)
     public List<UsuarioCursoResponseDTO> listarCursosDoAluno(Long alunoId) {
         return userCursoRepository.findByUserId(alunoId).stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
-    
+
     private UsuarioCursoResponseDTO toResponseDTO(UserCurso uc) {
         UsuarioCursoResponseDTO dto = new UsuarioCursoResponseDTO();
         dto.setId(uc.getIdUC());

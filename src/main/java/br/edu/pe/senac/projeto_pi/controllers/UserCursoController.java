@@ -24,16 +24,31 @@ public class UserCursoController {
             @RequestBody UsuarioCursoRequestDTO dto) {
         return ResponseEntity.ok(userCursoService.vincularAluno(cursoId, dto));
     }
-    
+
+    @DeleteMapping("/{cursoId}/alunos/{alunoId}")
+    @PreAuthorize("hasAnyRole('COORDENADOR', 'ADMINISTRADOR')")
+    public ResponseEntity<?> desvincularAluno(
+            @PathVariable Long cursoId,
+            @PathVariable Long alunoId) {
+        try {
+            userCursoService.desvincularAluno(cursoId, alunoId);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @GetMapping("/aluno/{alunoId}")
     @PreAuthorize("hasAnyRole('ALUNO', 'COORDENADOR', 'ADMINISTRADOR')")
-    public ResponseEntity<List<UsuarioCursoResponseDTO>> listarCursosDoAluno(@PathVariable Long alunoId) {
+    public ResponseEntity<List<UsuarioCursoResponseDTO>> listarCursosDoAluno(
+            @PathVariable Long alunoId) {
         return ResponseEntity.ok(userCursoService.listarCursosDoAluno(alunoId));
     }
 
     @GetMapping("/{cursoId}/alunos")
     @PreAuthorize("hasAnyRole('COORDENADOR', 'ADMINISTRADOR')")
-    public ResponseEntity<List<UsuarioCursoResponseDTO>> listarAlunos(@PathVariable Long cursoId) {
+    public ResponseEntity<List<UsuarioCursoResponseDTO>> listarAlunos(
+            @PathVariable Long cursoId) {
         return ResponseEntity.ok(userCursoService.listarAlunosDoCurso(cursoId));
     }
 }

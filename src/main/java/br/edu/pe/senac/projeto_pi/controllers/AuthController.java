@@ -23,9 +23,9 @@ import br.edu.pe.senac.projeto_pi.dto.LoginResponseDTO;
 import br.edu.pe.senac.projeto_pi.entity.Users;
 import br.edu.pe.senac.projeto_pi.repositories.UsersRepository;
 import br.edu.pe.senac.projeto_pi.security.JwtUtil;
+import br.edu.pe.senac.projeto_pi.service.LogSistemaService;
 import br.edu.pe.senac.projeto_pi.service.UsersService;
 import jakarta.validation.Valid;
-
 
 @RestController
 @RequestMapping("/auth")
@@ -36,15 +36,18 @@ public class AuthController {
 
     @Autowired
     private JwtUtil jwtUtil;
-    
+
     @Autowired
     private UsersRepository usersRepository;
-    
+
     @Autowired
     private UserDetailsService userDetailsService;
 
     @Autowired
     private UsersService usersService;
+
+    @Autowired
+    private LogSistemaService logService;
 
     @PostMapping("/login")
     public ResponseEntity<?> autenticar(@Valid @RequestBody LoginRequest request) {
@@ -59,6 +62,9 @@ public class AuthController {
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(usuario.getEmail());
             String token = jwtUtil.generateToken(userDetails, "ROLE_" + usuario.getPerfil().name());
+
+            // Registra log de login
+            logService.registrar(usuario, "Login realizado", "Auth");
 
             LoginResponseDTO response = new LoginResponseDTO(
                 usuario.getId(),
@@ -98,7 +104,6 @@ public class AuthController {
             );
 
             return ResponseEntity.ok("Senha alterada com sucesso.");
-
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
@@ -106,17 +111,18 @@ public class AuthController {
                 .body("Erro ao alterar senha.");
         }
     }
-    
+
     @GetMapping("/validate")
     public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String authHeader) {
         try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Token ausente ou mal formatado");
+            }
             String token = authHeader.substring(7);
             String username = jwtUtil.extractUsername(token);
-            
             if (jwtUtil.validateToken(token, username)) {
                 return ResponseEntity.ok("Token válido");
-            } else if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token ausente ou mal formatado");
             }
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
         } catch (Exception e) {
