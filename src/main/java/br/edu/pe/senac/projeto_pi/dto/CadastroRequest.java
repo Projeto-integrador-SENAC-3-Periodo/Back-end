@@ -23,10 +23,6 @@ public class CadastroRequest {
     
     private String matricula;
     
-    @NotBlank(message = "Senha é obrigatória")
-    @Size(min = 8, message = "Senha deve ter no mínimo 8 caracteres")
-    private String senha;
-    
     @NotNull(message = "Perfil é obrigatório")
     private Perfil perfil;
     
