@@ -1,9 +1,10 @@
 package br.edu.pe.senac.projeto_pi.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import br.edu.pe.senac.projeto_pi.entity.Perfil;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
