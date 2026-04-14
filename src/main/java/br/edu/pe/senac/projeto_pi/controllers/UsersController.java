@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.edu.pe.senac.projeto_pi.dto.CadastroRequest;
@@ -66,6 +67,32 @@ public class UsersController {
     @GetMapping
     public ResponseEntity<List<UsersResponseDTO>> listarTodos() {
         return ResponseEntity.ok(usersService.listarTodos());
+    }
+
+    @PreAuthorize("hasAnyRole('COORDENADOR', 'ADMINISTRADOR')")
+    @GetMapping("/busca")
+    public ResponseEntity<List<UsersResponseDTO>> buscar(
+            @RequestParam(required = false, defaultValue = "") String q,
+            @RequestParam(required = false) String perfil) {
+        Perfil perfilEnum = null;
+        if (perfil != null && !perfil.isBlank()) {
+            try {
+                perfilEnum = Perfil.valueOf(perfil.toUpperCase());
+            } catch (IllegalArgumentException ignored) {
+                // Invalid perfil, ignore filter
+            }
+        }
+        if (q.isBlank() && perfilEnum != null) {
+            // If no search term but perfil filter, list all of that perfil
+            return ResponseEntity.ok(usersService.buscarPorTermo("", perfilEnum));
+        }
+        return ResponseEntity.ok(usersService.buscarPorTermo(q, perfilEnum));
+    }
+
+    @PreAuthorize("hasAnyRole('COORDENADOR', 'ADMINISTRADOR')")
+    @GetMapping("/alunos")
+    public ResponseEntity<List<UsersResponseDTO>> listarAlunos() {
+        return ResponseEntity.ok(usersService.listarAlunos());
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")

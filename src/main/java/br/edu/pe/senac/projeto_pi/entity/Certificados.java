@@ -8,6 +8,8 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+import br.edu.pe.senac.projeto_pi.dto.CertificadoResponseDTO;
+
 @Entity
 @Table(name = "certificado")
 @Getter
@@ -21,24 +23,15 @@ public class Certificados {
     private Long idCertificado;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_id_atividade", nullable = false)
-    private Atividade atividade;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_id_aluno", nullable = false)
     private Users aluno;
 
-    @Column(name = "arquivo_url", nullable = false, length = 500)
-    private String arquivoUrl;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_id_curso", nullable = false)
+    private Curso curso;
 
-    @Column(name = "tipo_arquivo", length = 50)
-    private String tipoArquivo;
-
-    @Column(name = "texto_ocr", columnDefinition = "TEXT")
-    private String textoOcr;
-
-    @Column(name = "assinatura_digital", length = 500)
-    private String assinaturaDigital;
+    @Column(name = "descricao")
+    private String descricao;
 
     @Column(name = "data_emissao", nullable = false)
     private LocalDateTime dataEmissao;
@@ -47,4 +40,5 @@ public class Certificados {
     protected void onCreate() {
         this.dataEmissao = LocalDateTime.now();
     }
+
 }

@@ -36,15 +36,16 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource)) // Habilita CORS
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-               
-            	.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-                .requestMatchers(HttpMethod.POST, "/auth/login").permitAll() 
-                .requestMatchers("/error").permitAll() // Importante para tratamento de erros
-                
-                
-                // 3. QUALQUER OUTRA ROTA REQUER AUTENTICAÇÃO
-                .anyRequest().authenticated() 
-            )
+
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
+
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/usuarios/cadastro").permitAll()
+                .requestMatchers("/error").permitAll()
+
+                .anyRequest().authenticated()
+        )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 

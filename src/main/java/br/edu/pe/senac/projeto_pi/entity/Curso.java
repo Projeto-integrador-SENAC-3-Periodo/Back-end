@@ -27,9 +27,14 @@ public class Curso {
     @Column(name = "descricao", columnDefinition = "TEXT")
     private String descricao;
 
-    @Column(name = "carga_horaria_minima")
-    private Integer cargaHorariaMinima;
-    
+    /**
+     * Teto de horas complementares do curso.
+     * Quando o aluno atingir este valor (somando apenas atividades APROVADAS),
+     * nenhuma nova aprovação adiciona horas a ele neste curso.
+     */
+    @Column(name = "horas_complementares", nullable = false)
+    private Integer horasComplementares;
+
     @Column(nullable = false)
     private boolean ativo = true;
 

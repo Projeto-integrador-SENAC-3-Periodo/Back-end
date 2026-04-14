@@ -19,21 +19,12 @@ public class CertificadoService {
     @Autowired
     private CertificadoRepository certificadoRepository;
 
-    @Autowired
-    private AtividadeRepository atividadeRepository;
-
-    @Transactional
-    public Certificados createCertificado(Long atividadeId, String arquivoUrl, String tipoArquivo) {
-        Atividade atividade = atividadeRepository.findById(atividadeId)
-                .orElseThrow(() -> new RuntimeException("Atividade não encontrada"));
-
-        Certificados certificado = new Certificados();
-        certificado.setAtividade(atividade);
-        certificado.setAluno(atividade.getAluno());
-        certificado.setArquivoUrl(arquivoUrl);
-        certificado.setTipoArquivo(tipoArquivo);
-
-        return certificadoRepository.save(certificado);
+    @Transactional(readOnly = true)
+    public List<CertificadoResponseDTO> listByAluno(Long alunoId) {
+        return certificadoRepository.findByAlunoId(alunoId)
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -42,22 +33,15 @@ public class CertificadoService {
                 .orElseThrow(() -> new RuntimeException("Certificado não encontrado"));
         return toResponseDTO(cert);
     }
-    @Transactional(readOnly = true)
-    public List<CertificadoResponseDTO> listByAluno(Long alunoId) {
-        return certificadoRepository.findByAlunoId(alunoId).stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
-    }
+
     private CertificadoResponseDTO toResponseDTO(Certificados c) {
         CertificadoResponseDTO dto = new CertificadoResponseDTO();
         dto.setId(c.getIdCertificado());
-        dto.setIdAtividade(c.getAtividade().getIdAtividade());
-        dto.setTituloAtividade(c.getAtividade().getTitulo());
         dto.setIdAluno(c.getAluno().getId());
         dto.setNomeAluno(c.getAluno().getNome());
-        dto.setArquivoUrl(c.getArquivoUrl());
-        dto.setTipoArquivo(c.getTipoArquivo());
-        dto.setAssinaturaDigital(c.getAssinaturaDigital());
+        dto.setIdCurso(c.getCurso().getIdC());
+        dto.setNomeCurso(c.getCurso().getNome());
+        dto.setDescricao(c.getDescricao());
         dto.setDataEmissao(c.getDataEmissao());
         return dto;
     }

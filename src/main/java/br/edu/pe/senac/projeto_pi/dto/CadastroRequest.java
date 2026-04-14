@@ -1,9 +1,10 @@
 package br.edu.pe.senac.projeto_pi.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import br.edu.pe.senac.projeto_pi.entity.Perfil;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -22,11 +23,8 @@ public class CadastroRequest {
     private String email;
     
     private String matricula;
-    
-    @NotBlank(message = "Senha é obrigatória")
-    @Size(min = 8, message = "Senha deve ter no mínimo 8 caracteres")
-    private String senha;
-    
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     @NotNull(message = "Perfil é obrigatório")
     private Perfil perfil;
     

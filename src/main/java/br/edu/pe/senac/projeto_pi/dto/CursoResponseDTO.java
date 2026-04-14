@@ -9,5 +9,5 @@ public class CursoResponseDTO {
     private Long id;
     private String nome;
     private String descricao;
-    private Integer cargaHorariaMinima;
+    private Integer horasComplementares;
 }

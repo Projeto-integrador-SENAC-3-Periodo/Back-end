@@ -10,4 +10,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CertificadoRepository extends JpaRepository<Certificados, Long> {
 	List<Certificados> findByAlunoId(Long alunoId);
+
+	boolean existsByAlunoIdAndCursoIdC(Long alunoId, Long idC);
 }

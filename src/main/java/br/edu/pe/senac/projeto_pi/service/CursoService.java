@@ -1,6 +1,5 @@
 package br.edu.pe.senac.projeto_pi.service;
 
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,11 +22,14 @@ public class CursoService {
     private LogSistemaService logService;
 
     @Transactional
-    public CursoResponseDTO create(CursoRequestDTO cursoRequestDTO) {
+    public CursoResponseDTO create(CursoRequestDTO dto) {
+        if (dto.getHorasComplementares() == null || dto.getHorasComplementares() <= 0) {
+            throw new RuntimeException("A quantidade de horas complementares é obrigatória e deve ser maior que zero");
+        }
         Curso curso = new Curso();
-        curso.setNome(cursoRequestDTO.getNome());
-        curso.setDescricao(cursoRequestDTO.getDescricao());
-        curso.setCargaHorariaMinima(cursoRequestDTO.getCargaHorariaMinima());
+        curso.setNome(dto.getNome());
+        curso.setDescricao(dto.getDescricao());
+        curso.setHorasComplementares(dto.getHorasComplementares());
         curso = cursoRepository.save(curso);
         logService.registrarAcaoAtual("Criou curso: " + curso.getNome(), "Curso");
         return toResponseDTO(curso);
@@ -35,21 +37,26 @@ public class CursoService {
 
     @Transactional(readOnly = true)
     public List<CursoResponseDTO> listAll() {
-        return cursoRepository.findAll().stream().map(this::toResponseDTO).collect(Collectors.toList());
+        return cursoRepository.findAll().stream()
+            .map(this::toResponseDTO)
+            .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public CursoResponseDTO getById(Long id) {
-        Curso curso = cursoRepository.findById(id).orElseThrow(() -> new RuntimeException("Curso não encontrado"));
-        return toResponseDTO(curso);
+        return toResponseDTO(cursoRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Curso não encontrado")));
     }
 
     @Transactional
-    public CursoResponseDTO update(Long id, CursoRequestDTO cursoRequestDTO) {
-        Curso curso = cursoRepository.findById(id).orElseThrow(() -> new RuntimeException("Curso não encontrado"));
-        curso.setNome(cursoRequestDTO.getNome());
-        curso.setDescricao(cursoRequestDTO.getDescricao());
-        curso.setCargaHorariaMinima(cursoRequestDTO.getCargaHorariaMinima());
+    public CursoResponseDTO update(Long id, CursoRequestDTO dto) {
+        Curso curso = cursoRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Curso não encontrado"));
+        curso.setNome(dto.getNome());
+        curso.setDescricao(dto.getDescricao());
+        if (dto.getHorasComplementares() != null && dto.getHorasComplementares() > 0) {
+            curso.setHorasComplementares(dto.getHorasComplementares());
+        }
         curso = cursoRepository.save(curso);
         logService.registrarAcaoAtual("Atualizou curso: " + curso.getNome(), "Curso");
         return toResponseDTO(curso);
@@ -57,7 +64,8 @@ public class CursoService {
 
     @Transactional
     public void delete(Long id) {
-        Curso curso = cursoRepository.findById(id).orElseThrow(() -> new RuntimeException("Curso não encontrado"));
+        Curso curso = cursoRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Curso não encontrado"));
         logService.registrarAcaoAtual("Deletou curso: " + curso.getNome(), "Curso");
         cursoRepository.deleteById(id);
     }
@@ -67,7 +75,7 @@ public class CursoService {
         dto.setId(curso.getIdC());
         dto.setNome(curso.getNome());
         dto.setDescricao(curso.getDescricao());
-        dto.setCargaHorariaMinima(curso.getCargaHorariaMinima());
+        dto.setHorasComplementares(curso.getHorasComplementares());
         return dto;
     }
 }

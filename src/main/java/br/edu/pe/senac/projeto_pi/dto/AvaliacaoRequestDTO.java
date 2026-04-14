@@ -1,12 +1,15 @@
 package br.edu.pe.senac.projeto_pi.dto;
 
-import br.edu.pe.senac.projeto_pi.entity.ComprovacaoAtividade;
+import br.edu.pe.senac.projeto_pi.entity.Atividade;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class AvaliacaoRequestDTO {
-    private ComprovacaoAtividade.StatusComprovacao status;
-    private String observacao;
+    private Atividade.StatusAtividade status;
+    private Integer horasAprovadas;
+    private Atividade.CategoriaFixa categoriaFixa;
+    private Long idTipoAtividade;
+    private String motivoReprovacao;
 }

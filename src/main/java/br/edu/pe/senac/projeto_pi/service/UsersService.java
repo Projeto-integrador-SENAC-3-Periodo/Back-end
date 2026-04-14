@@ -126,6 +126,46 @@ public class UsersService {
             .toList();
     }
 
+    // BUSCAR USUÁRIOS POR NOME, MATRÍCULA OU EMAIL
+    @Transactional(readOnly = true)
+    public List<UsersResponseDTO> buscarPorTermo(String termo, Perfil perfil) {
+        List<Users> results;
+        if (termo == null || termo.isBlank()) {
+            // No search term: list all (optionally filtered by perfil)
+            if (perfil != null) {
+                results = usersRepository.findByPerfil(perfil);
+            } else {
+                results = usersRepository.findAll();
+            }
+        } else {
+            results = usersRepository.buscarPorTermo(termo, perfil);
+        }
+        return results.stream()
+            .map(u -> new UsersResponseDTO(
+                u.getId(),
+                u.getNome(),
+                u.getEmail(),
+                u.getPerfil().name(),
+                u.getMatricula()
+            ))
+            .toList();
+    }
+
+    // LISTAR TODOS OS ALUNOS
+    @Transactional(readOnly = true)
+    public List<UsersResponseDTO> listarAlunos() {
+        return usersRepository.findByPerfil(Perfil.ALUNO)
+            .stream()
+            .map(u -> new UsersResponseDTO(
+                u.getId(),
+                u.getNome(),
+                u.getEmail(),
+                u.getPerfil().name(),
+                u.getMatricula()
+            ))
+            .toList();
+    }
+
     // ATUALIZAR USUÁRIO
     @Transactional
     public UsersResponseDTO atualizar(Long id, UsuarioUpdateRequest req) {
