@@ -22,7 +22,8 @@ public class CadastroRequest {
     private String email;
     
     private String matricula;
-    
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     @NotNull(message = "Perfil é obrigatório")
     private Perfil perfil;
     
