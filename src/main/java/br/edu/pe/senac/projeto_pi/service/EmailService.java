@@ -1,33 +1,49 @@
 package br.edu.pe.senac.projeto_pi.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    @Value("${brevo.api.key}")
+    private String apiKey;
+
+    private final OkHttpClient client = new OkHttpClient();
 
     public void enviarCredenciais(String nome, String email, String senhaProvisoria) {
 
-        SimpleMailMessage message = new SimpleMailMessage();
+        String json = """
+        {
+          "sender": {
+            "name": "Sistema Senac",
+            "email": "abigailmariagoncalvesnazario@gmail.com"
+          },
+          "to": [
+            { "email": "%s" }
+          ],
+          "subject": "Acesso ao Sistema Senac",
+          "htmlContent": "Olá %s,<br><br>Sua senha provisória é: <b>%s</b>"
+        }
+        """.formatted(email, nome, senhaProvisoria);
 
-        message.setTo(email);
-        message.setSubject("Acesso ao Sistema Senac - Horas Complementares");
+        Request request = new Request.Builder()
+                .url("https://api.brevo.com/v3/smtp/email")
+                .addHeader("api-key", apiKey)
+                .addHeader("Content-Type", "application/json")
+                .post(RequestBody.create(json, MediaType.get("application/json")))
+                .build();
 
-        message.setText(
-            "Olá " + nome + ",\n\n" +
-            "Sua conta foi criada no sistema.\n\n" +
-            "Email: use seu e-mail para acesso "+email+"\n" +
-            "IMPORTANTE - Senha provisória: " + senhaProvisoria + "\n\n" +
-            "Recomendamos que você altere sua senha no primeiro acesso.\n\n" +
-            "Atenciosamente,\n" +
-            "Equipe Senac"
-        );
-
-        mailSender.send(message);
+        try (Response response = client.newCall(request).execute()) {
+            System.out.println("Email enviado: " + response.code());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
