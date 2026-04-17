@@ -3,15 +3,18 @@ package br.edu.pe.senac.projeto_pi.service;
 import br.edu.pe.senac.projeto_pi.dto.UsuarioCursoRequestDTO;
 import br.edu.pe.senac.projeto_pi.dto.UsuarioCursoResponseDTO;
 import br.edu.pe.senac.projeto_pi.entity.Curso;
+import br.edu.pe.senac.projeto_pi.entity.Notificacao;
 import br.edu.pe.senac.projeto_pi.entity.UserCurso;
 import br.edu.pe.senac.projeto_pi.entity.Users;
 import br.edu.pe.senac.projeto_pi.repositories.CursoRepository;
+import br.edu.pe.senac.projeto_pi.repositories.NotificacaoRepository;
 import br.edu.pe.senac.projeto_pi.repositories.UserCursoRepository;
 import br.edu.pe.senac.projeto_pi.repositories.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +29,9 @@ public class UserCursoService {
 
     @Autowired
     private CursoRepository cursoRepository;
+
+    @Autowired
+    private NotificacaoRepository notificacaoRepository;
 
     @Autowired
     private LogSistemaService logService;
@@ -49,6 +55,10 @@ public class UserCursoService {
         userCurso = userCursoRepository.save(userCurso);
         logService.registrarAcaoAtual(
             "Vinculou usuário " + user.getNome() + " ao curso " + curso.getNome(), "UserCurso");
+
+        // Create notification for the linked user
+        criarNotificacaoVinculo(user, curso, userCurso.getPapel());
+
         return toResponseDTO(userCurso);
     }
 
@@ -61,6 +71,41 @@ public class UserCursoService {
         userCursoRepository.delete(uc);
         logService.registrarAcaoAtual(
             "Desvinculou usuário " + user.getNome() + " do curso " + curso.getNome(), "UserCurso");
+
+        // Create notification for the unlinked user
+        criarNotificacaoDesvinculo(user, curso);
+    }
+
+    private void criarNotificacaoVinculo(Users user, Curso curso, UserCurso.Papel papel) {
+        String titulo;
+        String mensagem;
+        if (papel == UserCurso.Papel.COORDENADOR) {
+            titulo = "Vinculado como coordenador";
+            mensagem = "Você foi vinculado como coordenador ao curso \"" + curso.getNome() + "\".";
+        } else {
+            titulo = "Matriculado em curso";
+            mensagem = "Você foi matriculado no curso \"" + curso.getNome() + "\".";
+        }
+
+        Notificacao notificacao = new Notificacao();
+        notificacao.setUser(user);
+        notificacao.setTitulo(titulo);
+        notificacao.setMensagem(mensagem);
+        notificacao.setTipo(Notificacao.TipoNotificacao.PUSH);
+        notificacao.setStatus(Notificacao.StatusNotificacao.ENVIADA);
+        notificacao.setCreatedAt(LocalDateTime.now());
+        notificacaoRepository.save(notificacao);
+    }
+
+    private void criarNotificacaoDesvinculo(Users user, Curso curso) {
+        Notificacao notificacao = new Notificacao();
+        notificacao.setUser(user);
+        notificacao.setTitulo("Desvinculado de curso");
+        notificacao.setMensagem("Você foi desvinculado do curso \"" + curso.getNome() + "\".");
+        notificacao.setTipo(Notificacao.TipoNotificacao.PUSH);
+        notificacao.setStatus(Notificacao.StatusNotificacao.ENVIADA);
+        notificacao.setCreatedAt(LocalDateTime.now());
+        notificacaoRepository.save(notificacao);
     }
 
     @Transactional(readOnly = true)
