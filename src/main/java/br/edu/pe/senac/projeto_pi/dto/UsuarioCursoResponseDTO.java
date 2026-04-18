@@ -13,6 +13,7 @@ public class UsuarioCursoResponseDTO {
     private Long idUser;
     private String nomeUser;
     private String emailUser;
+    private String matriculaUser;
     private Long idCurso;
     private String nomeCurso;
     private UserCurso.Papel papel;
