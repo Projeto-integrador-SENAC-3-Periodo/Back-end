@@ -26,7 +26,7 @@ public class CursoController {
     private CursoService cursoService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDENADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR')")
     public ResponseEntity<CursoResponseDTO> create(@RequestBody CursoRequestDTO cursoRequestDTO) {
         return ResponseEntity.ok(cursoService.create(cursoRequestDTO));
     }
@@ -42,7 +42,7 @@ public class CursoController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDENADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR')")
     public ResponseEntity<CursoResponseDTO> update(@PathVariable Long id, @RequestBody CursoRequestDTO cursoRequestDTO) {
         return ResponseEntity.ok(cursoService.update(id, cursoRequestDTO));
     }
