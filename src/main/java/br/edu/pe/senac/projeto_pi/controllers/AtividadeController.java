@@ -9,21 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-/**
- * Controller de atividades complementares.
- *
- * Fluxo principal:
- *  1. Aluno submete atividade + comprovante  → POST /atividades/submeter
- *  2. Coordenador lista pendentes            → GET  /atividades/pendentes/curso/{cursoId}
- *  3. Coordenador avalia                     → PUT  /atividades/{id}/avaliar
- *  4. Aluno reenvia após reprovação          → PUT  /atividades/{id}/reenviar
- *  5. Aluno consulta suas horas             → GET  /atividades/horas/aluno/{alunoId}/curso/{cursoId}
- */
 @RestController
 @RequestMapping("/atividades")
 public class AtividadeController {
@@ -31,12 +22,8 @@ public class AtividadeController {
     @Autowired
     private AtividadeService atividadeService;
 
-    // ─── ALUNO ──────────────────────────────────────────────────────────────
+    // ─── ALUNO ───────────────────────────────────────────────────
 
-    /**
-     * Aluno submete uma nova atividade com comprovante/certificado.
-     * Aceita multipart/form-data com os campos da atividade + arquivo.
-     */
     @PostMapping(value = "/submeter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ALUNO')")
     public ResponseEntity<AtividadeResponseDTO> submeterAtividade(
@@ -61,9 +48,6 @@ public class AtividadeController {
         return ResponseEntity.ok(atividadeService.submeterAtividade(idAluno, dto, comprovante));
     }
 
-    /**
-     * Aluno reenvia uma atividade reprovada com as correções e novo comprovante (opcional).
-     */
     @PutMapping(value = "/{id}/reenviar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ALUNO')")
     public ResponseEntity<AtividadeResponseDTO> reenviarAtividade(
@@ -77,10 +61,9 @@ public class AtividadeController {
             @RequestParam(value = "comprovante", required = false) MultipartFile comprovante) {
 
         AtividadeRequestDTO dto = new AtividadeRequestDTO();
-        if (categoriaFixa != null) {
+        if (categoriaFixa != null)
             dto.setCategoriaFixa(
                 br.edu.pe.senac.projeto_pi.entity.Atividade.CategoriaFixa.valueOf(categoriaFixa.toUpperCase()));
-        }
         dto.setIdTipoAtividade(idTipoAtividade);
         dto.setTitulo(titulo);
         dto.setDescricao(descricao);
@@ -89,19 +72,12 @@ public class AtividadeController {
         return ResponseEntity.ok(atividadeService.reenviarAtividade(id, idAluno, dto, comprovante));
     }
 
-    /**
-     * Lista todas as atividades de um aluno (todos os status).
-     */
     @GetMapping("/aluno/{alunoId}")
     @PreAuthorize("hasAnyRole('ALUNO', 'COORDENADOR', 'ADMINISTRADOR')")
     public ResponseEntity<List<AtividadeResponseDTO>> listarPorAluno(@PathVariable Long alunoId) {
         return ResponseEntity.ok(atividadeService.listarPorAluno(alunoId));
     }
 
-    /**
-     * Resumo de horas complementares do aluno em um curso.
-     * Retorna horas aprovadas, limite, restantes e contagem por status.
-     */
     @GetMapping("/horas/aluno/{alunoId}/curso/{cursoId}")
     @PreAuthorize("hasAnyRole('ALUNO', 'COORDENADOR', 'ADMINISTRADOR')")
     public ResponseEntity<HorasAlunoResponseDTO> consultarHoras(
@@ -110,59 +86,56 @@ public class AtividadeController {
         return ResponseEntity.ok(atividadeService.consultarHorasAluno(alunoId, cursoId));
     }
 
-    // ─── COORDENADOR / ADMINISTRADOR ────────────────────────────────────────
+    // ─── COORDENADOR / ADMINISTRADOR ────────────────────────────
 
     /**
-     * Lista atividades PENDENTES de um curso, aguardando avaliação do coordenador.
+     * Lista atividades PENDENTES de um curso.
+     * Coordenador só acessa se for coordenador deste curso.
+     * Admin acessa qualquer curso.
      */
     @GetMapping("/pendentes/curso/{cursoId}")
     @PreAuthorize("hasAnyRole('COORDENADOR', 'ADMINISTRADOR')")
     public ResponseEntity<List<AtividadeResponseDTO>> listarPendentesPorCurso(
-            @PathVariable Long cursoId) {
-        return ResponseEntity.ok(atividadeService.listarPendentesPorCurso(cursoId));
+            @PathVariable Long cursoId,
+            Authentication auth) {
+        return ResponseEntity.ok(
+            atividadeService.listarPendentesPorCurso(cursoId, auth.getName()));
     }
 
     /**
-     * Coordenador avalia uma atividade (aprova ou reprova).
-     *
-     * Body JSON:
-     * {
-     *   "status": "APROVADO" | "REPROVADO",
-     *   "horasAprovadas": 20,           // opcional; usa horasSolicitadas se omitido
-     *   "categoriaFixa": "PESQUISA",    // opcional; corrige a categoria do aluno
-     *   "idTipoAtividade": 3,           // opcional; corrige o tipo do aluno
-     *   "motivoReprovacao": "..."        // obrigatório se status = REPROVADO
-     * }
+     * Coordenador avalia atividade pendente.
+     * Bloqueia se a atividade não pertencer a um curso que ele coordena.
      */
     @PutMapping("/{id}/avaliar")
     @PreAuthorize("hasAnyRole('COORDENADOR', 'ADMINISTRADOR')")
     public ResponseEntity<AtividadeResponseDTO> avaliarAtividade(
             @PathVariable Long id,
-            @RequestBody AvaliacaoRequestDTO dto) {
-        return ResponseEntity.ok(atividadeService.avaliarAtividade(id, dto));
+            @RequestBody AvaliacaoRequestDTO dto,
+            Authentication auth) {
+        return ResponseEntity.ok(
+            atividadeService.avaliarAtividade(id, dto, auth.getName()));
     }
 
     /**
-     * Lista todas as atividades de um curso (qualquer status).
+     * Lista todas as atividades (qualquer status) de um curso.
+     * Coordenador só acessa cursos que coordena.
      */
     @GetMapping("/curso/{cursoId}")
     @PreAuthorize("hasAnyRole('COORDENADOR', 'ADMINISTRADOR')")
-    public ResponseEntity<List<AtividadeResponseDTO>> listarPorCurso(@PathVariable Long cursoId) {
-        return ResponseEntity.ok(atividadeService.listarPorCurso(cursoId));
+    public ResponseEntity<List<AtividadeResponseDTO>> listarPorCurso(
+            @PathVariable Long cursoId,
+            Authentication auth) {
+        return ResponseEntity.ok(
+            atividadeService.listarPorCurso(cursoId, auth.getName()));
     }
 
-    /**
-     * Busca uma atividade pelo ID.
-     */
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ALUNO', 'COORDENADOR', 'ADMINISTRADOR')")
     public ResponseEntity<AtividadeResponseDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(atividadeService.buscarPorId(id));
     }
 
-    /**
-     * Lista todas as atividades (admin).
-     */
+    /** Apenas admin lista tudo sem filtro de curso. */
     @GetMapping
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<List<AtividadeResponseDTO>> listarTodas() {
