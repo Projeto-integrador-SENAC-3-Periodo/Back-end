@@ -42,16 +42,8 @@ public class EmailService {
         enviar(email, "Acesso ao Sistema Senac", html);
     }
 
-    // ─── Atividade APROVADA ───────────────────────────────────────
-
     /**
      * Envia email ao aluno informando que sua atividade foi APROVADA.
-     *
-     * @param nomeAluno       nome do aluno
-     * @param emailAluno      email do aluno
-     * @param tituloAtividade título da atividade aprovada
-     * @param horasAprovadas  quantidade de horas creditadas
-     * @param horasLimite     teto de horas do curso
      */
     public void enviarAprovacaoAtividade(String nomeAluno,
                                          String emailAluno,
@@ -61,7 +53,7 @@ public class EmailService {
         String html = """
             <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto">
               <div style="background:#28a745;padding:16px;border-radius:8px 8px 0 0">
-                <h2 style="color:#fff;margin:0">✅ Atividade Aprovada</h2>
+                <h2 style="color:#fff;margin:0">Atividade Aprovada</h2>
               </div>
               <div style="border:1px solid #ddd;border-top:none;padding:24px;border-radius:0 0 8px 8px">
                 <p>Olá, <strong>%s</strong>!</p>
@@ -93,16 +85,9 @@ public class EmailService {
         enviar(emailAluno, "✅ Atividade Aprovada — " + tituloAtividade, html);
     }
 
-    // ─── Atividade REPROVADA ──────────────────────────────────────
-
     /**
      * Envia email ao aluno informando que sua atividade foi REPROVADA,
      * incluindo o motivo e orientação para reenvio.
-     *
-     * @param nomeAluno        nome do aluno
-     * @param emailAluno       email do aluno
-     * @param tituloAtividade  título da atividade reprovada
-     * @param motivoReprovacao feedback obrigatório do coordenador
      */
     public void enviarReprovacaoAtividade(String nomeAluno,
                                           String emailAluno,
@@ -143,7 +128,6 @@ public class EmailService {
         enviar(emailAluno, "❌ Atividade Reprovada — " + tituloAtividade, html);
     }
 
-    // ─── Helper interno ───────────────────────────────────────────
 
     /**
      * Dispara a chamada HTTP para a API Brevo.

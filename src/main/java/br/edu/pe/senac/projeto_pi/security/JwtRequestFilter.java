@@ -26,20 +26,18 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailsService userDetailsService;
 
-    // --- CORREÇÃO APLICADA: shouldNotFilter mais robusto ---
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        // Usa o URI em minúsculas para robustez e verifica se ele contém a rota.
+        // Usa o URI em minúsculas e verifica se ele contém a rota.
         String path = request.getRequestURI().toLowerCase(); 
 
-        // ➡️ MUDANÇA AQUI: Usa contains() para lidar com Context Paths e verifica rotas específicas.
+        // Usa contains() para lidar com Context Paths e verifica rotas específicas.
         // O shouldNotFilter retorna TRUE para rotas que DEVEM ser IGNORADAS pelo filtro.
         return path.contains("/auth/login") || 
                path.startsWith("/css/") || 
                path.startsWith("/js/") || 
                path.startsWith("/images/");
     }
-    // -----------------------------------------------------------
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,

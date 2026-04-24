@@ -20,7 +20,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // CORREÇÃO: Usa o Perfil do usuário para gerar a autoridade no formato ROLE_PERFIL
+        // Usa o Perfil do usuário para gerar a autoridade no formato ROLE_PERFIL
         return Collections.singletonList(
             new SimpleGrantedAuthority("ROLE_" + user.getPerfil().name())
         );

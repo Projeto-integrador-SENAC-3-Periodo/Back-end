@@ -126,7 +126,7 @@ public class AtividadeService {
         atividade.setAluno(aluno);
         atividade.setCurso(curso);
         atividade.setCategoriaFixa(dto.getCategoriaFixa());
-        atividade.setTitulo(dto.getTipoAtividade());
+        atividade.setTipoAtividade(dto.getTipoAtividade());
         atividade.setDescricao(dto.getDescricao());
         atividade.setDescricao(dto.getDescricao());
         atividade.setHorasSolicitadas(dto.getHorasSolicitadas());
@@ -224,7 +224,7 @@ public class AtividadeService {
             atividade.setCategoriaFixa(dto.getCategoriaFixa());
 
         if (dto.getTipoAtividade() != null) {
-        	    atividade.setDescricao(dto.getTipoAtividade());
+        	    atividade.setTipoAtividade(dto.getTipoAtividade());
         }
 
         if (dto.getStatus() == Atividade.StatusAtividade.APROVADO) {
