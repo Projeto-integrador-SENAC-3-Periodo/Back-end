@@ -128,7 +128,6 @@ public class AtividadeService {
         atividade.setCategoriaFixa(dto.getCategoriaFixa());
         atividade.setTipoAtividade(dto.getTipoAtividade());
         atividade.setDescricao(dto.getDescricao());
-        atividade.setDescricao(dto.getDescricao());
         atividade.setHorasSolicitadas(dto.getHorasSolicitadas());
         atividade.setStatus(Atividade.StatusAtividade.PENDENTE);
         atividade.setDataSubmissao(LocalDateTime.now());
@@ -142,9 +141,9 @@ public class AtividadeService {
         notificarCoordenadoresDoCurso(curso,
             "Nova atividade aguardando avaliação",
             "O aluno " + aluno.getNome() + " enviou a atividade \"" +
-                atividade.getTitulo() + "\" aguardando sua avaliação.");
+                atividade.getTipoAtividade() + "\" aguardando sua avaliação.");
 
-        logService.registrar(aluno, "Submeteu atividade: " + atividade.getTitulo(), "Atividade");
+        logService.registrar(aluno, "Submeteu atividade: " + atividade.getTipoAtividade(), "Atividade");
         return toResponseDTO(atividade);
     }
 
@@ -194,10 +193,10 @@ public class AtividadeService {
         notificarCoordenadoresDoCurso(atividade.getCurso(),
             "Atividade reenviada para avaliação",
             "O aluno " + atividade.getAluno().getNome() +
-                " corrigiu e reenviou a atividade \"" + atividade.getTitulo() + "\".");
+                " corrigiu e reenviou a atividade \"" + atividade.getTipoAtividade() + "\".");
 
         logService.registrar(atividade.getAluno(),
-            "Reenviou atividade id=" + atividadeId + ": " + atividade.getTitulo(), "Atividade");
+            "Reenviou atividade id=" + atividadeId + ": " + atividade.getTipoAtividade(), "Atividade");
         return toResponseDTO(atividade);
     }
 
@@ -336,12 +335,12 @@ public class AtividadeService {
 
         criarNotificacao(aluno,
             "Atividade aprovada ✓",
-            "Sua atividade \"" + atividade.getTitulo() + "\" foi APROVADA! " +
+            "Sua atividade \"" + atividade.getTipoAtividade() + "\" foi APROVADA! " +
                 "Horas creditadas: " + horasEfetivas + "h" + msgExtra + ".");
 
         emailService.enviarAprovacaoAtividade(
             aluno.getNome(), aluno.getEmail(),
-            atividade.getTitulo(), horasEfetivas, limiteHoras);
+            atividade.getTipoAtividade(), horasEfetivas, limiteHoras);
     }
 
     // ─── Reprovação ───────────────────────────────────────────────
@@ -358,12 +357,12 @@ public class AtividadeService {
 
         criarNotificacao(aluno,
             "Atividade reprovada ✗",
-            "Sua atividade \"" + atividade.getTitulo() + "\" foi REPROVADA. " +
+            "Sua atividade \"" + atividade.getTipoAtividade() + "\" foi REPROVADA. " +
                 "Motivo: " + dto.getMotivoReprovacao() + " Você pode corrigir e reenviar.");
 
         emailService.enviarReprovacaoAtividade(
             aluno.getNome(), aluno.getEmail(),
-            atividade.getTitulo(), dto.getMotivoReprovacao());
+            atividade.getTipoAtividade(), dto.getMotivoReprovacao());
     }
 
     // ─── Helpers internos ─────────────────────────────────────────

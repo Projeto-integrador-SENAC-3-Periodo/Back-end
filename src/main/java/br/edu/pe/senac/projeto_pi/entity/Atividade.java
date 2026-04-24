@@ -38,7 +38,6 @@ public class Atividade {
     @Column(nullable = false, length = 20)
     private CategoriaFixa categoriaFixa;
 
-    private String titulo;
     
     @Column(columnDefinition = "TEXT")
     private String descricao;
