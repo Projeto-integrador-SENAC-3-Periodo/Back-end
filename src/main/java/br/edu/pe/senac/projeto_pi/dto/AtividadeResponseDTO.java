@@ -20,13 +20,11 @@ public class AtividadeResponseDTO {
     private String nomeCurso;
 
     // Tipo de atividade
-    private Long idTipoAtividade;
-    private String nomeTipoAtividade;
+    private String TipoAtividade;
 
     // Categoria fixa (ENSINO / PESQUISA / EXTENSAO)
     private Atividade.CategoriaFixa categoriaFixa;
 
-    private String titulo;
     private String descricao;
 
     /** Horas informadas pelo aluno. */

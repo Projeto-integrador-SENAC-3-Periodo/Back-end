@@ -18,7 +18,7 @@ public class UserCursoController {
     private UserCursoService userCursoService;
 
     @PostMapping("/{cursoId}/alunos")
-    @PreAuthorize("hasAnyRole('COORDENADOR', 'ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR')")
     public ResponseEntity<UsuarioCursoResponseDTO> vincularAluno(
             @PathVariable Long cursoId,
             @RequestBody UsuarioCursoRequestDTO dto) {
@@ -26,7 +26,7 @@ public class UserCursoController {
     }
 
     @DeleteMapping("/{cursoId}/alunos/{alunoId}")
-    @PreAuthorize("hasAnyRole('COORDENADOR', 'ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR')")
     public ResponseEntity<?> desvincularAluno(
             @PathVariable Long cursoId,
             @PathVariable Long alunoId) {

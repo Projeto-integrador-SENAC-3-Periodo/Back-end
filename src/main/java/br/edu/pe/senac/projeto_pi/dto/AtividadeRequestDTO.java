@@ -16,11 +16,8 @@ public class AtividadeRequestDTO {
     /** Categoria fixa: ENSINO, PESQUISA ou EXTENSAO. */
     private Atividade.CategoriaFixa categoriaFixa;
 
-    /** ID do tipo de atividade escolhido pelo aluno. */
-    private Long idTipoAtividade;
-
-    /** Título/nome da atividade (ex.: "Monitoria de Algoritmos"). */
-    private String titulo;
+    /** Nome do tipo de atividade. */
+    private String TipoAtividade;
 
     /** Descrição livre da atividade. */
     private String descricao;
@@ -30,7 +27,7 @@ public class AtividadeRequestDTO {
 
     /**
      * ID do curso ao qual esta atividade pertence.
-     * Se o aluno estiver em apenas um curso, pode ser inferido automaticamente.
+     * Se o aluno estiver em apenas um curso, não precisará colocar o curso.
      */
     private Long idCurso;
 }

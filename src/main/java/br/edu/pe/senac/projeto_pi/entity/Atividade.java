@@ -31,17 +31,15 @@ public class Atividade {
     @JoinColumn(name = "fk_id_curso", nullable = false)
     private Curso curso;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_id_tipo_atividade", nullable = false)
-    private TipoAtividade tipoAtividade;
+    @Column(name = "tipo_atividade", nullable = false)
+    private String tipoAtividade;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private CategoriaFixa categoriaFixa;
 
-    @Column(nullable = false)
     private String titulo;
-
+    
     @Column(columnDefinition = "TEXT")
     private String descricao;
 
