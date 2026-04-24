@@ -166,7 +166,7 @@ public class AtividadeService {
                 "Apenas atividades REPROVADAS podem ser reenviadas. Status atual: " + atividade.getStatus());
 
         if (dto.getCategoriaFixa() != null)  atividade.setCategoriaFixa(dto.getCategoriaFixa());
-        if (dto.getTipoAtividade() != null)  atividade.setTitulo(dto.getTipoAtividade());
+        if (dto.getTipoAtividade() != null)  atividade.setTipoAtividade(dto.getTipoAtividade());
         if (dto.getDescricao() != null)   atividade.setDescricao(dto.getDescricao());
         if (dto.getHorasSolicitadas() != null && dto.getHorasSolicitadas() > 0)
             atividade.setHorasSolicitadas(dto.getHorasSolicitadas());

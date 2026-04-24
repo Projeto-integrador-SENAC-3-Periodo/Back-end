@@ -88,14 +88,24 @@ public class AtividadeController {
 
     // ─── COORDENADOR / ADMINISTRADOR ────────────────────────────
 
+    /**
+     * Lista atividades PENDENTES de um curso.
+     * Coordenador só acessa se for coordenador deste curso.
+     * Admin acessa qualquer curso.
+     */
     @GetMapping("/pendentes/curso/{cursoId}")
     @PreAuthorize("hasAnyRole('COORDENADOR', 'ADMINISTRADOR')")
     public ResponseEntity<List<AtividadeResponseDTO>> listarPendentesPorCurso(
-            @PathVariable Long cursoId, Authentication auth) {
+            @PathVariable Long cursoId,
+            Authentication auth) {
         return ResponseEntity.ok(
             atividadeService.listarPendentesPorCurso(cursoId, auth.getName()));
     }
 
+    /**
+     * Coordenador avalia atividade pendente.
+     * Bloqueia se a atividade não pertencer a um curso que ele coordena.
+     */
     @PutMapping("/{id}/avaliar")
     @PreAuthorize("hasAnyRole('COORDENADOR', 'ADMINISTRADOR')")
     public ResponseEntity<AtividadeResponseDTO> avaliarAtividade(
@@ -106,10 +116,15 @@ public class AtividadeController {
             atividadeService.avaliarAtividade(id, dto, auth.getName()));
     }
 
+    /**
+     * Lista todas as atividades (qualquer status) de um curso.
+     * Coordenador só acessa cursos que coordena.
+     */
     @GetMapping("/curso/{cursoId}")
     @PreAuthorize("hasAnyRole('COORDENADOR', 'ADMINISTRADOR')")
     public ResponseEntity<List<AtividadeResponseDTO>> listarPorCurso(
-            @PathVariable Long cursoId, Authentication auth) {
+            @PathVariable Long cursoId,
+            Authentication auth) {
         return ResponseEntity.ok(
             atividadeService.listarPorCurso(cursoId, auth.getName()));
     }
@@ -120,6 +135,7 @@ public class AtividadeController {
         return ResponseEntity.ok(atividadeService.buscarPorId(id));
     }
 
+    /** Apenas admin lista tudo sem filtro de curso. */
     @GetMapping
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<List<AtividadeResponseDTO>> listarTodas() {
