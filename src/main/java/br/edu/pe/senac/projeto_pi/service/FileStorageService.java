@@ -61,7 +61,8 @@ public class FileStorageService {
                     "folder",        "atividades/" + atividadeId,
                     "resource_type", isPdf ? "raw" : "image",
                     "use_filename",  false,
-                    "unique_filename", true
+                    "unique_filename", true,
+                    "content_type",  isPdf ? "application/pdf" : contentType
                 )
             );
 
