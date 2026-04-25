@@ -58,15 +58,22 @@ public class FileStorageService {
             Map<?, ?> result = cloudinary.uploader().upload(
                 file.getBytes(),
                 ObjectUtils.asMap(
-                    "folder",        "atividades/" + atividadeId,
-                    "resource_type", isPdf ? "raw" : "image",
-                    "use_filename",  false,
-                    "unique_filename", true,
-                    "content_type",  isPdf ? "application/pdf" : contentType
+                    "folder",          "atividades/" + atividadeId,
+                    "resource_type",   isPdf ? "raw" : "image",
+                    "use_filename",    false,
+                    "unique_filename", true
                 )
             );
 
-            return (String) result.get("secure_url");
+            String url = (String) result.get("secure_url");
+
+            // Para PDFs, substituir /raw/upload/ por /raw/upload/fl_attachment:false/
+            // Isso força o Cloudinary a servir com Content-Type: application/pdf
+            if (isPdf) {
+                url = url.replace("/raw/upload/", "/raw/upload/fl_attachment:false/");
+            }
+
+            return url;
 
         } catch (IOException ex) {
             throw new RuntimeException("Falha ao enviar arquivo para o Cloudinary.", ex);

@@ -82,7 +82,7 @@ public class EmailService {
             </div>
             """.formatted(nomeAluno, tituloAtividade, horasAprovadas, horasLimite);
 
-        enviar(emailAluno, "✅ Atividade Aprovada — " + tituloAtividade, html);
+        enviar(emailAluno, "Atividade Aprovada — " + tituloAtividade, html);
     }
 
     /**
@@ -96,7 +96,7 @@ public class EmailService {
         String html = """
             <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto">
               <div style="background:#dc3545;padding:16px;border-radius:8px 8px 0 0">
-                <h2 style="color:#fff;margin:0">❌ Atividade Reprovada</h2>
+                <h2 style="color:#fff;margin:0">Atividade Reprovada</h2>
               </div>
               <div style="border:1px solid #ddd;border-top:none;padding:24px;border-radius:0 0 8px 8px">
                 <p>Olá, <strong>%s</strong>!</p>
@@ -112,7 +112,7 @@ public class EmailService {
                   </tr>
                 </table>
                 <div style="background:#fff3cd;border:1px solid #ffc107;padding:16px;border-radius:8px;margin-top:20px">
-                  <p style="margin:0"><strong>💡 O que fazer agora?</strong></p>
+                  <p style="margin:0"><strong>O que fazer agora?</strong></p>
                   <p style="margin:8px 0 0">
                     Acesse o sistema, corrija os pontos indicados pelo coordenador
                     e reenvie o comprovante corrigido.
@@ -125,7 +125,7 @@ public class EmailService {
             </div>
             """.formatted(nomeAluno, tituloAtividade, motivoReprovacao);
 
-        enviar(emailAluno, "❌ Atividade Reprovada — " + tituloAtividade, html);
+        enviar(emailAluno, "Atividade Reprovada — " + tituloAtividade, html);
     }
 
 
