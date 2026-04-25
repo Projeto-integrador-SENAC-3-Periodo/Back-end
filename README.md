@@ -11,7 +11,7 @@ O sistema tem como finalidade facilitar o controle de atividades complementares 
 * Gerenciamento de usuários e permissões
 * Organização de cursos e atividades
 * Envio e validação de comprovantes
-* Geração de certificados
+* Gerção de certificado de horas atingidads
 * Acompanhamento de progresso acadêmico
 
 ## Atores do Sistema
