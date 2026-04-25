@@ -22,7 +22,7 @@ public class CorsConfig {
             "http://127.0.0.1:8080",
             "http://localhost:5174",
             "http://127.0.0.1:5174",
-            "https://horascomplementaressenac.netlify.app"
+            "https://horascomplementaresfsenac.netlify.app"
         ));
         
         // Permite todos os métodos HTTP
