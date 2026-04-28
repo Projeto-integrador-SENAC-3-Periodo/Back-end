@@ -44,6 +44,4 @@ public class Curso {
     @OneToMany(mappedBy = "curso")
     private List<Atividade> atividades;
 
-    @OneToMany(mappedBy = "curso")
-    private List<RegraCursoAtividade> regrasCursoAtividade;
 }

@@ -1,23 +1,17 @@
 package br.edu.pe.senac.projeto_pi.controllers;
 
-
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import br.edu.pe.senac.projeto_pi.dto.TipoAtividadeRequestDTO;
 import br.edu.pe.senac.projeto_pi.dto.TipoAtividadeResponseDTO;
+import br.edu.pe.senac.projeto_pi.entity.Atividade.CategoriaFixa;
 import br.edu.pe.senac.projeto_pi.service.TipoAtividadeService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/tipos-atividade")
@@ -26,15 +20,24 @@ public class TipoAtividadeController {
     @Autowired
     private TipoAtividadeService tipoAtividadeService;
 
-    @PostMapping
-    @PreAuthorize("hasAnyRole(\'ADMINISTRADOR\', \'COORDENADOR\')")
-    public ResponseEntity<TipoAtividadeResponseDTO> create(@RequestBody TipoAtividadeRequestDTO requestDTO) {
-        return ResponseEntity.ok(tipoAtividadeService.create(requestDTO));
-    }
-
+    /** Aluno precisa listar tipos ao enviar atividade */
     @GetMapping
     public ResponseEntity<List<TipoAtividadeResponseDTO>> listAll() {
         return ResponseEntity.ok(tipoAtividadeService.listAll());
+    }
+
+    /** Coordenador/Admin vê todos (incluindo inativos) */
+    @GetMapping("/todos")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDENADOR')")
+    public ResponseEntity<List<TipoAtividadeResponseDTO>> listAllAdmin() {
+        return ResponseEntity.ok(tipoAtividadeService.listAllIncludingInactive());
+    }
+
+    /** Filtrar por categoria — útil para o formulário do aluno */
+    @GetMapping("/categoria/{categoria}")
+    public ResponseEntity<List<TipoAtividadeResponseDTO>> listByCategoria(
+            @PathVariable CategoriaFixa categoria) {
+        return ResponseEntity.ok(tipoAtividadeService.listByCategoria(categoria));
     }
 
     @GetMapping("/{id}")
@@ -42,16 +45,38 @@ public class TipoAtividadeController {
         return ResponseEntity.ok(tipoAtividadeService.getById(id));
     }
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole(\'ADMINISTRADOR\', \'COORDENADOR\')")
-    public ResponseEntity<TipoAtividadeResponseDTO> update(@PathVariable Long id, @RequestBody TipoAtividadeRequestDTO requestDTO) {
-        return ResponseEntity.ok(tipoAtividadeService.update(id, requestDTO));
+    @PostMapping
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDENADOR')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<TipoAtividadeResponseDTO> create(
+            @RequestBody @Valid TipoAtividadeRequestDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(tipoAtividadeService.create(dto));
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('COORDENADOR')")
+    public ResponseEntity<TipoAtividadeResponseDTO> update(
+            @PathVariable Long id,
+            @RequestBody @Valid TipoAtividadeRequestDTO dto) {
+        return ResponseEntity.ok(tipoAtividadeService.update(id, dto));
+    }
+
+    /**
+     * DELETE: soft delete se em uso, físico se livre.
+     * Coordenador/Admin pode remover.
+     */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole(\'ADMINISTRADOR\', \'COORDENADOR\')")
+    @PreAuthorize("hasAnyRole('COORDENADOR')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         tipoAtividadeService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /** Reativa um tipo desativado */
+    @PatchMapping("/{id}/reativar")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDENADOR')")
+    public ResponseEntity<TipoAtividadeResponseDTO> reativar(@PathVariable Long id) {
+        return ResponseEntity.ok(tipoAtividadeService.reativar(id));
     }
 }

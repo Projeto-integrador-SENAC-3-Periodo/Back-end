@@ -50,30 +50,20 @@ public class AtividadeService {
         return (limite != null && limite > 0) ? limite : 1;
     }
 
-    // ─── Helper: valida se o coordenador pertence ao curso ────────
+    // ─── Helper: valida coordenador do curso ──────────────────────
 
-    /**
-     * Verifica se o usuário autenticado (pelo email) é COORDENADOR do curso informado.
-     * ADMINISTRADOR passa livre — não precisa ser vinculado ao curso.
-     * Lança exceção 403 se a verificação falhar.
-     */
     private void validarCoordenadorDoCurso(String emailAutenticado, Long cursoId) {
         Users usuario = userRepository.findByEmail(emailAutenticado)
             .orElseThrow(() -> new RuntimeException("Usuário autenticado não encontrado"));
 
-        // Admin pode tudo
         if (usuario.getPerfil() == Perfil.ADMINISTRADOR) return;
 
-        // Coordenador: precisa estar vinculado ao curso com papel COORDENADOR
         userCursoRepository.findByUserIdAndCursoIdC(usuario.getId(), cursoId)
             .filter(uc -> uc.getPapel() == UserCurso.Papel.COORDENADOR)
             .orElseThrow(() -> new RuntimeException(
                 "Acesso negado: você não é coordenador deste curso"));
     }
 
-    /**
-     * Valida que o coordenador autenticado é coordenador do curso da atividade.
-     */
     private void validarCoordenadorDaAtividade(String emailAutenticado, Atividade atividade) {
         validarCoordenadorDoCurso(emailAutenticado, atividade.getCurso().getIdC());
     }
@@ -92,16 +82,20 @@ public class AtividadeService {
 
         userCursoRepository.findByUserIdAndCursoIdC(alunoId, curso.getIdC())
             .orElseThrow(() -> new RuntimeException("Aluno não está matriculado neste curso"));
-        
-        if (dto.getTipoAtividade() == null || dto.getTipoAtividade().isBlank())
+
+        if (dto.getIdTipoAtividade() == null)
             throw new RuntimeException("Tipo de atividade é obrigatório");
+
+        TipoAtividade tipo = tipoAtividadeRepository.findById(dto.getIdTipoAtividade())
+            .filter(TipoAtividade::isAtivo)
+            .orElseThrow(() -> new RuntimeException("Tipo de atividade inválido ou inativo"));
 
         if (dto.getCategoriaFixa() == null)
             throw new RuntimeException("Categoria obrigatória");
 
         if (dto.getDescricao() == null || dto.getDescricao().isBlank())
             throw new RuntimeException("Descrição é obrigatória");
-        
+
         if (dto.getHorasSolicitadas() == null || dto.getHorasSolicitadas() <= 0)
             throw new RuntimeException("Horas inválidas");
 
@@ -116,17 +110,31 @@ public class AtividadeService {
         if (comprovante.getSize() > 10 * 1024 * 1024)
             throw new RuntimeException("Arquivo máximo 10MB");
 
+        // Validação 1: teto do curso
         int limiteHoras = limiteCurso(curso);
         int horasJaAprovadas = atividadeRepository
             .somarHorasAprovadasPorAlunoECurso(alunoId, curso.getIdC());
         if (horasJaAprovadas >= limiteHoras)
             throw new RuntimeException("Teto de " + limiteHoras + "h complementares já atingido neste curso");
 
+        // Validação 2: limite por tipo de atividade
+        if (tipo.getHorasMaximas() != null && tipo.getHorasMaximas() > 0) {
+            int horasNoTipo = tipoAtividadeRepository
+                .somarHorasAtivasPorAlunoETipo(alunoId, tipo.getIdTA());
+            int totalComNova = horasNoTipo + dto.getHorasSolicitadas();
+            if (totalComNova > tipo.getHorasMaximas()) {
+                int disponivel = tipo.getHorasMaximas() - horasNoTipo;
+                throw new RuntimeException(
+                    "Limite de " + tipo.getHorasMaximas() + "h excedido para o tipo '" +
+                    tipo.getNome() + "'. Você ainda pode enviar " + Math.max(0, disponivel) + "h neste tipo.");
+            }
+        }
+
         Atividade atividade = new Atividade();
         atividade.setAluno(aluno);
         atividade.setCurso(curso);
-        atividade.setCategoriaFixa(dto.getCategoriaFixa());
-        atividade.setTipoAtividade(dto.getTipoAtividade());
+        atividade.setCategoriaFixa(tipo.getCategoriaF()); // usa a categoria do tipo (garante consistência)
+        atividade.setTipoAtividade(tipo);
         atividade.setDescricao(dto.getDescricao());
         atividade.setHorasSolicitadas(dto.getHorasSolicitadas());
         atividade.setStatus(Atividade.StatusAtividade.PENDENTE);
@@ -141,9 +149,9 @@ public class AtividadeService {
         notificarCoordenadoresDoCurso(curso,
             "Nova atividade aguardando avaliação",
             "O aluno " + aluno.getNome() + " enviou a atividade \"" +
-                atividade.getTipoAtividade() + "\" aguardando sua avaliação.");
+                tipo.getNome() + "\" aguardando sua avaliação.");
 
-        logService.registrar(aluno, "Submeteu atividade: " + atividade.getTipoAtividade(), "Atividade");
+        logService.registrar(aluno, "Submeteu atividade: " + tipo.getNome(), "Atividade");
         return toResponseDTO(atividade);
     }
 
@@ -164,8 +172,13 @@ public class AtividadeService {
             throw new RuntimeException(
                 "Apenas atividades REPROVADAS podem ser reenviadas. Status atual: " + atividade.getStatus());
 
-        if (dto.getCategoriaFixa() != null)  atividade.setCategoriaFixa(dto.getCategoriaFixa());
-        if (dto.getTipoAtividade() != null)  atividade.setTipoAtividade(dto.getTipoAtividade());
+        if (dto.getIdTipoAtividade() != null) {
+            TipoAtividade tipo = tipoAtividadeRepository.findById(dto.getIdTipoAtividade())
+                .filter(TipoAtividade::isAtivo)
+                .orElseThrow(() -> new RuntimeException("Tipo de atividade inválido ou inativo"));
+            atividade.setTipoAtividade(tipo);
+            atividade.setCategoriaFixa(tipo.getCategoriaF());
+        }
         if (dto.getDescricao() != null)   atividade.setDescricao(dto.getDescricao());
         if (dto.getHorasSolicitadas() != null && dto.getHorasSolicitadas() > 0)
             atividade.setHorasSolicitadas(dto.getHorasSolicitadas());
@@ -190,13 +203,16 @@ public class AtividadeService {
         atividade.setTentativas(atividade.getTentativas() + 1);
         atividade = atividadeRepository.save(atividade);
 
+        String nomeAtividade = atividade.getTipoAtividade() != null
+            ? atividade.getTipoAtividade().getNome() : "—";
+
         notificarCoordenadoresDoCurso(atividade.getCurso(),
             "Atividade reenviada para avaliação",
             "O aluno " + atividade.getAluno().getNome() +
-                " corrigiu e reenviou a atividade \"" + atividade.getTipoAtividade() + "\".");
+                " corrigiu e reenviou a atividade \"" + nomeAtividade + "\".");
 
         logService.registrar(atividade.getAluno(),
-            "Reenviou atividade id=" + atividadeId + ": " + atividade.getTipoAtividade(), "Atividade");
+            "Reenviou atividade id=" + atividadeId + ": " + nomeAtividade, "Atividade");
         return toResponseDTO(atividade);
     }
 
@@ -209,7 +225,6 @@ public class AtividadeService {
         Atividade atividade = atividadeRepository.findById(atividadeId)
             .orElseThrow(() -> new RuntimeException("Atividade não encontrada"));
 
-        // Garante que o coordenador só avalia atividades do seu próprio curso
         validarCoordenadorDaAtividade(emailCoordenador, atividade);
 
         if (atividade.getStatus() != Atividade.StatusAtividade.PENDENTE)
@@ -222,8 +237,11 @@ public class AtividadeService {
         if (dto.getCategoriaFixa() != null)
             atividade.setCategoriaFixa(dto.getCategoriaFixa());
 
-        if (dto.getTipoAtividade() != null) {
-        	    atividade.setTipoAtividade(dto.getTipoAtividade());
+        // Coordenador pode corrigir o tipo ao avaliar
+        if (dto.getIdTipoAtividade() != null) {
+            TipoAtividade tipo = tipoAtividadeRepository.findById(dto.getIdTipoAtividade())
+                .orElseThrow(() -> new RuntimeException("Tipo de atividade não encontrado"));
+            atividade.setTipoAtividade(tipo);
         }
 
         if (dto.getStatus() == Atividade.StatusAtividade.APROVADO) {
@@ -242,12 +260,8 @@ public class AtividadeService {
         return toResponseDTO(atividade);
     }
 
-    // ─── COORDENADOR: Consultas filtradas pelo seu curso ─────────
+    // ─── COORDENADOR: Consultas filtradas ────────────────────────
 
-    /**
-     * Lista atividades PENDENTES apenas dos cursos que o coordenador coordena.
-     * ADMINISTRADOR vê todos os cursos.
-     */
     @Transactional(readOnly = true)
     public List<AtividadeResponseDTO> listarPendentesPorCurso(Long cursoId,
                                                                String emailAutenticado) {
@@ -256,10 +270,6 @@ public class AtividadeService {
             .map(this::toResponseDTO).collect(Collectors.toList());
     }
 
-    /**
-     * Lista todas as atividades (qualquer status) de um curso.
-     * Coordenador só acessa cursos que coordena; Admin acessa todos.
-     */
     @Transactional(readOnly = true)
     public List<AtividadeResponseDTO> listarPorCurso(Long cursoId, String emailAutenticado) {
         validarCoordenadorDoCurso(emailAutenticado, cursoId);
@@ -267,7 +277,7 @@ public class AtividadeService {
             .map(this::toResponseDTO).collect(Collectors.toList());
     }
 
-    // ─── Consultas sem restrição de curso ─────────────────────────
+    // ─── Consultas abertas ────────────────────────────────────────
 
     @Transactional(readOnly = true)
     public List<AtividadeResponseDTO> listarTodasAtividades() {
@@ -332,15 +342,17 @@ public class AtividadeService {
         atividade.setMotivoReprovacao(null);
 
         Users aluno = atividade.getAluno();
+        String nomeAtividade = atividade.getTipoAtividade() != null
+            ? atividade.getTipoAtividade().getNome() : "—";
 
         criarNotificacao(aluno,
             "Atividade aprovada ✓",
-            "Sua atividade \"" + atividade.getTipoAtividade() + "\" foi APROVADA! " +
+            "Sua atividade \"" + nomeAtividade + "\" foi APROVADA! " +
                 "Horas creditadas: " + horasEfetivas + "h" + msgExtra + ".");
 
         emailService.enviarAprovacaoAtividade(
             aluno.getNome(), aluno.getEmail(),
-            atividade.getTipoAtividade(), horasEfetivas, limiteHoras);
+            nomeAtividade, horasEfetivas, limiteHoras);
     }
 
     // ─── Reprovação ───────────────────────────────────────────────
@@ -354,15 +366,17 @@ public class AtividadeService {
         atividade.setHorasAprovadas(null);
 
         Users aluno = atividade.getAluno();
+        String nomeAtividade = atividade.getTipoAtividade() != null
+            ? atividade.getTipoAtividade().getNome() : "—";
 
         criarNotificacao(aluno,
             "Atividade reprovada ✗",
-            "Sua atividade \"" + atividade.getTipoAtividade() + "\" foi REPROVADA. " +
+            "Sua atividade \"" + nomeAtividade + "\" foi REPROVADA. " +
                 "Motivo: " + dto.getMotivoReprovacao() + " Você pode corrigir e reenviar.");
 
         emailService.enviarReprovacaoAtividade(
             aluno.getNome(), aluno.getEmail(),
-            atividade.getTipoAtividade(), dto.getMotivoReprovacao());
+            nomeAtividade, dto.getMotivoReprovacao());
     }
 
     // ─── Helpers internos ─────────────────────────────────────────
@@ -394,7 +408,10 @@ public class AtividadeService {
         dto.setNomeAluno(a.getAluno().getNome());
         dto.setIdCurso(a.getCurso().getIdC());
         dto.setNomeCurso(a.getCurso().getNome());
-        dto.setTipoAtividade(a.getTipoAtividade());
+        if (a.getTipoAtividade() != null) {
+            dto.setIdTipoAtividade(a.getTipoAtividade().getIdTA());
+            dto.setNomeTipoAtividade(a.getTipoAtividade().getNome());
+        }
         dto.setCategoriaFixa(a.getCategoriaFixa());
         dto.setDescricao(a.getDescricao());
         dto.setHorasSolicitadas(a.getHorasSolicitadas());

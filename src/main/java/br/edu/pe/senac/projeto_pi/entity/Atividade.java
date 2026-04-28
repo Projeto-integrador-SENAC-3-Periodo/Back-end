@@ -31,8 +31,9 @@ public class Atividade {
     @JoinColumn(name = "fk_id_curso", nullable = false)
     private Curso curso;
 
-    @Column(name = "tipo_atividade", nullable = false)
-    private String tipoAtividade;
+    @ManyToOne
+    @JoinColumn(name = "id_tipo_atividade")
+    private TipoAtividade tipoAtividade;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -87,7 +88,6 @@ public class Atividade {
         if (this.tentativas == null) this.tentativas = 0;
     }
 
-    // ─── Enums ────────────────────────────────────────────────────
 
     public enum StatusAtividade {
         PENDENTE,
@@ -98,7 +98,7 @@ public class Atividade {
         @JsonValue
         public String toValue() { return this.name(); }
 
-        /** Desserializa de forma tolerante (aceita maiúsculas e minúsculas). */
+        /** Aceita maiúsculas e minúsculas. */
         @JsonCreator
         public static StatusAtividade fromString(String value) {
             if (value == null) return null;
@@ -120,7 +120,7 @@ public class Atividade {
         @JsonValue
         public String toValue() { return this.name(); }
 
-        /** Desserializa de forma tolerante (aceita maiúsculas e minúsculas). */
+        /** Aceita maiúsculas e minúsculas. */
         @JsonCreator
         public static CategoriaFixa fromString(String value) {
             if (value == null) return null;

@@ -43,7 +43,7 @@ public class AtividadeController {
         AtividadeRequestDTO dto = new AtividadeRequestDTO();
         dto.setCategoriaFixa(
             br.edu.pe.senac.projeto_pi.entity.Atividade.CategoriaFixa.valueOf(categoriaFixa.toUpperCase()));
-        dto.setTipoAtividade(tipoAtividade); 
+        dto.setIdTipoAtividade(tipoAtividade != null ? Long.parseLong(tipoAtividade) : null); 
         dto.setDescricao(descricao);
         dto.setHorasSolicitadas(horasSolicitadas);
         dto.setIdCurso(idCurso);
@@ -66,7 +66,7 @@ public class AtividadeController {
         if (categoriaFixa != null)
             dto.setCategoriaFixa(
                 br.edu.pe.senac.projeto_pi.entity.Atividade.CategoriaFixa.valueOf(categoriaFixa.toUpperCase()));
-        dto.setTipoAtividade(tipoAtividade);
+        dto.setIdTipoAtividade(tipoAtividade != null ? Long.parseLong(tipoAtividade) : null);
         dto.setDescricao(descricao);
         dto.setHorasSolicitadas(horasSolicitadas);
 
@@ -91,10 +91,9 @@ public class AtividadeController {
     /**
      * Lista atividades PENDENTES de um curso.
      * Coordenador só acessa se for coordenador deste curso.
-     * Admin acessa qualquer curso.
      */
     @GetMapping("/pendentes/curso/{cursoId}")
-    @PreAuthorize("hasAnyRole('COORDENADOR', 'ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('COORDENADOR')")
     public ResponseEntity<List<AtividadeResponseDTO>> listarPendentesPorCurso(
             @PathVariable Long cursoId,
             Authentication auth) {
@@ -121,7 +120,7 @@ public class AtividadeController {
      * Coordenador só acessa cursos que coordena.
      */
     @GetMapping("/curso/{cursoId}")
-    @PreAuthorize("hasAnyRole('COORDENADOR', 'ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('COORDENADOR')")
     public ResponseEntity<List<AtividadeResponseDTO>> listarPorCurso(
             @PathVariable Long cursoId,
             Authentication auth) {

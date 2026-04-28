@@ -19,8 +19,9 @@ public class AtividadeResponseDTO {
     private Long idCurso;
     private String nomeCurso;
 
-    // Tipo de atividade
-    private String TipoAtividade;
+    // Tipo de atividade (objeto)
+    private Long idTipoAtividade;
+    private String nomeTipoAtividade;
 
     // Categoria fixa (ENSINO / PESQUISA / EXTENSAO)
     private Atividade.CategoriaFixa categoriaFixa;

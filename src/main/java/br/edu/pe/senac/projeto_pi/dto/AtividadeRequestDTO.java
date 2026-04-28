@@ -12,12 +12,11 @@ import lombok.Setter;
 @Setter
 public class AtividadeRequestDTO {
 
-
-	/** Categoria fixa: ENSINO, PESQUISA ou EXTENSAO. */
+    /** Categoria fixa: ENSINO, PESQUISA ou EXTENSAO. */
     private Atividade.CategoriaFixa categoriaFixa;
 
-    /** Nome do tipo de atividade. */
-    private String tipoAtividade;
+    /** ID do TipoAtividade selecionado pelo aluno. */
+    private Long idTipoAtividade;
 
     /** Descrição livre da atividade. */
     private String descricao;
@@ -27,8 +26,6 @@ public class AtividadeRequestDTO {
 
     /**
      * ID do curso ao qual esta atividade pertence.
-     * Se o aluno estiver em apenas um curso, não precisará colocar o curso.
      */
     private Long idCurso;
-;
 }

@@ -6,7 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.time.LocalDateTime;
+
+import br.edu.pe.senac.projeto_pi.entity.Atividade.CategoriaFixa;
 
 @Entity
 @Table(name = "tipoatividade")
@@ -23,22 +25,25 @@ public class TipoAtividade {
     @Column(nullable = false)
     private String nome;
 
-    @Column(columnDefinition = "TEXT")
-    private String descricao;
-
     @Column(name = "horas_maximas")
     private Integer horasMaximas;
 
     @Column(columnDefinition = "TEXT")
     private String requisito;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_id_categoria", nullable = false)
-    private CategoriaAtividade categoria;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "categoria_f", nullable = false, length = 20)
+    private CategoriaFixa categoriaF;
 
-    @OneToMany(mappedBy = "tipoAtividade")
-    private List<Atividade> atividades;
+    @Column(nullable = false)
+    private boolean ativo = true;
 
-    @OneToMany(mappedBy = "tipoAtividade")
-    private List<RegraCursoAtividade> regrasCursoAtividade;
+    @Column(name = "criado_em", updatable = false)
+    private LocalDateTime criadoEm;
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.criadoEm == null) this.criadoEm = LocalDateTime.now();
+        this.ativo = true;
+    }
 }

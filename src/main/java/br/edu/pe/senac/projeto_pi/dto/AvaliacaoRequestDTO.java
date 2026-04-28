@@ -10,6 +10,6 @@ public class AvaliacaoRequestDTO {
     private Atividade.StatusAtividade status;
     private Integer horasAprovadas;
     private Atividade.CategoriaFixa categoriaFixa;
-    private String TipoAtividade;
+    private Long idTipoAtividade;
     private String motivoReprovacao;
 }
