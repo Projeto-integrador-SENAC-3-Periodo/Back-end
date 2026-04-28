@@ -11,23 +11,21 @@ O sistema tem como finalidade facilitar o controle de atividades complementares 
 * Gerenciamento de usuários e permissões
 * Organização de cursos e atividades
 * Envio e validação de comprovantes
-* Geração de certificados
+* Gerção de certificado de horas atingidads
 * Acompanhamento de progresso acadêmico
 
 ## Atores do Sistema
 
 ### Administrador
 
-* Possui acesso total ao sistema
 * Cadastra usuários
 * Gerencia cursos, atividades e alunos
-* Vincula coordenadores aos cursos
+* Vincula coordenadores e alunos aos cursos
 * Visualiza logs
 
 ### Coordenador
 
 * Gerencia cursos aos quais está vinculado
-* Cria atividades
 * Avalia comprovantes (aprova/reprova)
 * Acompanha desempenho dos alunos
 
@@ -36,11 +34,11 @@ O sistema tem como finalidade facilitar o controle de atividades complementares 
 * Participa de cursos
 * Visualiza atividades
 * Envia comprovantes (imagem/PDF)
-* Acompanha status, pontuação e certificados
+* Acompanha status, pontuação/horas aprovadas e certificados
 
 ## Regras de Acesso
 
-* O **Administrador possui todas as permissões do sistema**
+* O **Administrador possui todas as permissões do sistema para gerenciamento**
 * O **Coordenador só pode atuar nos cursos aos quais está vinculado**
 * O vínculo entre coordenador e curso é obrigatório para gerenciamento
 * Alunos só interagem com cursos em que estão matriculados
@@ -61,7 +59,6 @@ O sistema tem como finalidade facilitar o controle de atividades complementares 
 
 O projeto segue o padrão de arquitetura em camadas:
 
-```
 controller/
 service/
 repository/
@@ -70,20 +67,22 @@ entity/
 security/
 config/
 exception/
-```
 
 ## Funcionalidades Implementadas
 
-* ✅ Cadastro de usuários (restrito ao administrador)
-* ✅ Login com email ou matrícula
-* ✅ Autenticação com JWT
-* ✅ Criptografia de senha
-* ✅ Controle de acesso por perfil (ADMIN, COORDENADOR, ALUNO)
-* ✅ Envio de email com senha provisória
-* ✅ Estrutura inicial de logs do sistema
-* ✅ Configuração do banco de dados
-* ✅ Integração com Spring Security
-* ✅ Vinculação de coordenadores aos cursos
+* Cadastro de usuários (restrito ao administrador)
+* Login com email ou matrícula
+* Autenticação com JWT
+* Criptografia de senha
+* Controle de acesso por perfil (ADMIN, COORDENADOR, ALUNO)
+* Envio de email com senha provisória e de aviso caso o comprovante é validado ou rejeitado
+* Estrutura inicial de logs do sistema
+* Configuração do banco de dados e hospedado no Railway
+* Integração com Spring Security
+* Vinculação de coordenadores aos cursos
+* Vinculação de aluno aos cursos
+* Função de aprovar e reprovar comprovante
+* Implementação de todos os get, put, delete,post que o sistema precisa
 
 
 ## Entidades do Sistema
@@ -132,7 +131,7 @@ mvn spring-boot:run
 * Administradores possuem acesso total ao sistema
 * Coordenadores só podem gerenciar cursos vinculados a eles
 * Toda atividade deve ser avaliada
-* Certificados só são gerados após aprovação
+* Certificado só é gerado quando o aluno atinge a quantidade de horas complementares total
 * O sistema registra logs de ações dos usuários
 * Notificações podem ser enviadas por email ou push
 
@@ -143,5 +142,4 @@ Abigail Maria Nazário
 Projeto desenvolvido como parte do Projeto Integrador (PI) do curso de Análise e Desenvolvimento de Sistemas.
 
 ## Licença
-
 Este projeto é acadêmico e de uso educacional.
