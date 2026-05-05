@@ -43,14 +43,14 @@ public class AtividadeService {
     @Autowired private LogSistemaService logService;
     @Autowired private EmailService emailService;
 
-    // ─── Helper: teto de horas do curso ──────────────────────────
+    // Teto de horas do curso
 
     private int limiteCurso(Curso curso) {
         Integer limite = curso.getHorasComplementares();
         return (limite != null && limite > 0) ? limite : 1;
     }
 
-    // ─── Helper: valida coordenador do curso ──────────────────────
+    // Validar coordenador do curso
 
     private void validarCoordenadorDoCurso(String emailAutenticado, Long cursoId) {
         Users usuario = userRepository.findByEmail(emailAutenticado)
@@ -68,7 +68,7 @@ public class AtividadeService {
         validarCoordenadorDoCurso(emailAutenticado, atividade.getCurso().getIdC());
     }
 
-    // ─── ALUNO: Submeter nova atividade ───────────────────────────
+    // Submeter nova atividade - aluno
 
     @Transactional
     public AtividadeResponseDTO submeterAtividade(Long alunoId,
@@ -155,7 +155,7 @@ public class AtividadeService {
         return toResponseDTO(atividade);
     }
 
-    // ─── ALUNO: Reenviar atividade reprovada ──────────────────────
+    // Reenviar atividade reprovada ─ Aluno
 
     @Transactional
     public AtividadeResponseDTO reenviarAtividade(Long atividadeId,
@@ -216,7 +216,7 @@ public class AtividadeService {
         return toResponseDTO(atividade);
     }
 
-    // ─── COORDENADOR: Avaliar atividade ───────────────────────────
+    // Avaliar atividade ─ Coordenador
 
     @Transactional
     public AtividadeResponseDTO avaliarAtividade(Long atividadeId,
@@ -260,7 +260,7 @@ public class AtividadeService {
         return toResponseDTO(atividade);
     }
 
-    // ─── COORDENADOR: Consultas filtradas ────────────────────────
+    // Consultas filtradas ─ Coordenador
 
     @Transactional(readOnly = true)
     public List<AtividadeResponseDTO> listarPendentesPorCurso(Long cursoId,
@@ -277,7 +277,7 @@ public class AtividadeService {
             .map(this::toResponseDTO).collect(Collectors.toList());
     }
 
-    // ─── Consultas abertas ────────────────────────────────────────
+    // Consultas 
 
     @Transactional(readOnly = true)
     public List<AtividadeResponseDTO> listarTodasAtividades() {
@@ -318,7 +318,7 @@ public class AtividadeService {
             (int) pendentes, (int) aprovadas, (int) reprovadas);
     }
 
-    // ─── Aprovação ────────────────────────────────────────────────
+    // Aprovação
 
     private void processarAprovacao(Atividade atividade, AvaliacaoRequestDTO dto) {
         int horasParaAprovar = (dto.getHorasAprovadas() != null && dto.getHorasAprovadas() > 0)
@@ -362,7 +362,7 @@ public class AtividadeService {
         }
     }
 
-    // ─── Reprovação ───────────────────────────────────────────────
+    // Reprovação 
 
     private void processarReprovacao(Atividade atividade, AvaliacaoRequestDTO dto) {
         if (dto.getMotivoReprovacao() == null || dto.getMotivoReprovacao().isBlank())
