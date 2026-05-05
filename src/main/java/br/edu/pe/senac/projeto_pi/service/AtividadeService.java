@@ -43,14 +43,14 @@ public class AtividadeService {
     @Autowired private LogSistemaService logService;
     @Autowired private EmailService emailService;
 
-    // teto de horas do curso
+    // ─── Helper: teto de horas do curso ──────────────────────────
 
     private int limiteCurso(Curso curso) {
         Integer limite = curso.getHorasComplementares();
         return (limite != null && limite > 0) ? limite : 1;
     }
 
-    //valida coordenador do curso 
+    // ─── Helper: valida coordenador do curso ──────────────────────
 
     private void validarCoordenadorDoCurso(String emailAutenticado, Long cursoId) {
         Users usuario = userRepository.findByEmail(emailAutenticado)
@@ -68,7 +68,7 @@ public class AtividadeService {
         validarCoordenadorDoCurso(emailAutenticado, atividade.getCurso().getIdC());
     }
 
-    // Submeter nova atividade - Aluno
+    // ─── ALUNO: Submeter nova atividade ───────────────────────────
 
     @Transactional
     public AtividadeResponseDTO submeterAtividade(Long alunoId,
@@ -110,14 +110,14 @@ public class AtividadeService {
         if (comprovante.getSize() > 10 * 1024 * 1024)
             throw new RuntimeException("Arquivo máximo 10MB");
 
-        // Validação 1 - teto do curso
+        // Validação 1: teto do curso
         int limiteHoras = limiteCurso(curso);
         int horasJaAprovadas = atividadeRepository
             .somarHorasAprovadasPorAlunoECurso(alunoId, curso.getIdC());
         if (horasJaAprovadas >= limiteHoras)
             throw new RuntimeException("Teto de " + limiteHoras + "h complementares já atingido neste curso");
 
-        // Validação 2 - limite por tipo de atividade
+        // Validação 2: limite por tipo de atividade
         if (tipo.getHorasMaximas() != null && tipo.getHorasMaximas() > 0) {
             int horasNoTipo = tipoAtividadeRepository
                 .somarHorasAtivasPorAlunoETipo(alunoId, tipo.getIdTA());
@@ -133,7 +133,7 @@ public class AtividadeService {
         Atividade atividade = new Atividade();
         atividade.setAluno(aluno);
         atividade.setCurso(curso);
-        atividade.setCategoriaFixa(tipo.getCategoriaF()); // usa a categoria do tipo
+        atividade.setCategoriaFixa(tipo.getCategoriaF()); // usa a categoria do tipo (garante consistência)
         atividade.setTipoAtividade(tipo);
         atividade.setDescricao(dto.getDescricao());
         atividade.setHorasSolicitadas(dto.getHorasSolicitadas());
@@ -155,7 +155,7 @@ public class AtividadeService {
         return toResponseDTO(atividade);
     }
 
-    //Reenviar atividade reprovada - Aluno
+    // ─── ALUNO: Reenviar atividade reprovada ──────────────────────
 
     @Transactional
     public AtividadeResponseDTO reenviarAtividade(Long atividadeId,
@@ -216,7 +216,7 @@ public class AtividadeService {
         return toResponseDTO(atividade);
     }
 
-    //Avaliar atividade ─ Coordenador
+    // ─── COORDENADOR: Avaliar atividade ───────────────────────────
 
     @Transactional
     public AtividadeResponseDTO avaliarAtividade(Long atividadeId,
@@ -260,7 +260,7 @@ public class AtividadeService {
         return toResponseDTO(atividade);
     }
 
-    // Consultas filtradas - Coordenador
+    // ─── COORDENADOR: Consultas filtradas ────────────────────────
 
     @Transactional(readOnly = true)
     public List<AtividadeResponseDTO> listarPendentesPorCurso(Long cursoId,
@@ -277,7 +277,7 @@ public class AtividadeService {
             .map(this::toResponseDTO).collect(Collectors.toList());
     }
 
-    // Consultas abertas ─ Coordenador
+    // ─── Consultas abertas ────────────────────────────────────────
 
     @Transactional(readOnly = true)
     public List<AtividadeResponseDTO> listarTodasAtividades() {
@@ -318,7 +318,7 @@ public class AtividadeService {
             (int) pendentes, (int) aprovadas, (int) reprovadas);
     }
 
-    // Aprovação
+    // ─── Aprovação ────────────────────────────────────────────────
 
     private void processarAprovacao(Atividade atividade, AvaliacaoRequestDTO dto) {
         int horasParaAprovar = (dto.getHorasAprovadas() != null && dto.getHorasAprovadas() > 0)
@@ -353,9 +353,16 @@ public class AtividadeService {
         emailService.enviarAprovacaoAtividade(
             aluno.getNome(), aluno.getEmail(),
             nomeAtividade, horasEfetivas, limiteHoras);
+
+        // Verifica se o aluno atingiu o teto do curso APÓS essa aprovação
+        // Se sim, gera o certificado de conclusão automaticamente
+        int totalAposAprovacao = horasJaAprov + horasEfetivas;
+        if (totalAposAprovacao >= limiteHoras) {
+            gerarCertificadoConclusao(aluno, atividade.getCurso());
+        }
     }
 
-    // Reprovação
+    // ─── Reprovação ───────────────────────────────────────────────
 
     private void processarReprovacao(Atividade atividade, AvaliacaoRequestDTO dto) {
         if (dto.getMotivoReprovacao() == null || dto.getMotivoReprovacao().isBlank())
