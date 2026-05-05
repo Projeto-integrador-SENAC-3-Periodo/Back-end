@@ -25,7 +25,7 @@ public class AdminInitializer {
 
                 Users admin = new Users();
                 admin.setNome("Administrador");
-                admin.setEmail("admin@sprig.com");
+                admin.setEmail("admin@senac.com");
                 admin.setSenha(passwordEncoder.encode("admin123"));
                 admin.setPerfil(Perfil.ADMINISTRADOR);
                 admin.setSenhaProvisoria(false);

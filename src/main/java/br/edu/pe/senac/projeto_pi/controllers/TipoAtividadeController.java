@@ -20,7 +20,6 @@ public class TipoAtividadeController {
     @Autowired
     private TipoAtividadeService tipoAtividadeService;
 
-    /** Aluno precisa listar tipos ao enviar atividade */
     @GetMapping
     public ResponseEntity<List<TipoAtividadeResponseDTO>> listAll() {
         return ResponseEntity.ok(tipoAtividadeService.listAll());
@@ -33,7 +32,7 @@ public class TipoAtividadeController {
         return ResponseEntity.ok(tipoAtividadeService.listAllIncludingInactive());
     }
 
-    /** Filtrar por categoria — útil para o formulário do aluno */
+    /** Filtrar por categoria — para o formulário do aluno */
     @GetMapping("/categoria/{categoria}")
     public ResponseEntity<List<TipoAtividadeResponseDTO>> listByCategoria(
             @PathVariable CategoriaFixa categoria) {

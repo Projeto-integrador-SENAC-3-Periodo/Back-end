@@ -22,11 +22,9 @@ public class AtividadeController {
     @Autowired
     private AtividadeService atividadeService;
 
-    // ─── ALUNO ───────────────────────────────────────────────────
-
     /**
      * Aluno submete atividade.
-     * - categoriaFixa, tipoAtividadeTexto (campo livre), descricao, horasSolicitadas, idCurso e comprovante
+     * - categoriaFixa, descricao, horasSolicitadas, idCurso e comprovante
      * - idTipoAtividade é OPCIONAL — se não enviado, fica null (aluno usa texto livre)
      */
     @PostMapping(value = "/submeter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -74,19 +72,19 @@ public class AtividadeController {
     }
 
     @GetMapping("/aluno/{alunoId}")
-    @PreAuthorize("hasAnyRole('ALUNO', 'COORDENADOR', 'ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ALUNO', 'COORDENADOR')")
     public ResponseEntity<List<AtividadeResponseDTO>> listarPorAluno(@PathVariable Long alunoId) {
         return ResponseEntity.ok(atividadeService.listarPorAluno(alunoId));
     }
 
     @GetMapping("/horas/aluno/{alunoId}/curso/{cursoId}")
-    @PreAuthorize("hasAnyRole('ALUNO', 'COORDENADOR', 'ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ALUNO', 'COORDENADOR')")
     public ResponseEntity<HorasAlunoResponseDTO> consultarHoras(
             @PathVariable Long alunoId, @PathVariable Long cursoId) {
         return ResponseEntity.ok(atividadeService.consultarHorasAluno(alunoId, cursoId));
     }
 
-    // ─── COORDENADOR / ADMINISTRADOR ────────────────────────────
+    //COORDENADOR / ADMINISTRADOR
 
     /**
      * Lista atividades PENDENTES de um curso.
@@ -106,7 +104,7 @@ public class AtividadeController {
      * Bloqueia se a atividade não pertencer a um curso que ele coordena.
      */
     @PutMapping("/{id}/avaliar")
-    @PreAuthorize("hasAnyRole('COORDENADOR', 'ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('COORDENADOR')")
     public ResponseEntity<AtividadeResponseDTO> avaliarAtividade(
             @PathVariable Long id,
             @RequestBody AvaliacaoRequestDTO dto,
@@ -129,7 +127,7 @@ public class AtividadeController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ALUNO', 'COORDENADOR', 'ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ALUNO', 'COORDENADOR')")
     public ResponseEntity<AtividadeResponseDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(atividadeService.buscarPorId(id));
     }

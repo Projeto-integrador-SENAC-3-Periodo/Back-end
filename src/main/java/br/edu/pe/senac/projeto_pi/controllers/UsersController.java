@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.edu.pe.senac.projeto_pi.dto.CadastroRequest;
-import br.edu.pe.senac.projeto_pi.dto.PontuacaoResponseDTO;
 import br.edu.pe.senac.projeto_pi.dto.UsersResponseDTO;
 import br.edu.pe.senac.projeto_pi.dto.UsuarioUpdateRequest;
 import br.edu.pe.senac.projeto_pi.entity.Atividade;
@@ -118,15 +117,5 @@ public class UsersController {
         }
     }
 
-    @GetMapping("/{id}/pontuacao")
-    public ResponseEntity<PontuacaoResponseDTO> getPontuacao(@PathVariable Long id) {
-        Users aluno = usersRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-        List<Atividade> aprovadas = atividadeRepository.findByAlunoIdAndStatus(
-            id, Atividade.StatusAtividade.APROVADO);
-        int totalPontos = aprovadas.stream()
-            .mapToInt(a -> a.getPontos() != null ? a.getPontos() : 0).sum();
-        return ResponseEntity.ok(
-            new PontuacaoResponseDTO(id, aluno.getNome(), totalPontos, aprovadas.size()));
-    }
+
 }

@@ -20,7 +20,7 @@ public class TipoAtividadeService {
     @Autowired
     private TipoAtividadeRepository repository;
 
-    // ─── CRIAR ───────────────────────────────────────────────────
+    // CRIAR
 
     @Transactional
     public TipoAtividadeResponseDTO create(TipoAtividadeRequestDTO dto) {
@@ -32,7 +32,7 @@ public class TipoAtividadeService {
         return TipoAtividadeResponseDTO.from(repository.save(tipo));
     }
 
-    // ─── LISTAR ──────────────────────────────────────────────────
+    // LISTAR 
 
     @Transactional(readOnly = true)
     public List<TipoAtividadeResponseDTO> listAll() {
@@ -63,7 +63,7 @@ public class TipoAtividadeService {
                     HttpStatus.NOT_FOUND, "Tipo de Atividade não encontrado")));
     }
 
-    // ─── EDITAR ──────────────────────────────────────────────────
+    // EDITAR
 
     @Transactional
     public TipoAtividadeResponseDTO update(Long id, TipoAtividadeRequestDTO dto) {
@@ -77,7 +77,7 @@ public class TipoAtividadeService {
         return TipoAtividadeResponseDTO.from(repository.save(tipo));
     }
 
-    // ─── REMOVER (soft delete se em uso, físico se livre) ────────
+    // REMOVER
 
     @Transactional
     public void delete(Long id) {
@@ -95,7 +95,7 @@ public class TipoAtividadeService {
         }
     }
 
-    // ─── REATIVAR ────────────────────────────────────────────────
+    // REATIVAR
 
     @Transactional
     public TipoAtividadeResponseDTO reativar(Long id) {

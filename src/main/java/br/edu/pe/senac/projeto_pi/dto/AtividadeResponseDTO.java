@@ -19,7 +19,7 @@ public class AtividadeResponseDTO {
     private Long idCurso;
     private String nomeCurso;
 
-    // Tipo de atividade (objeto)
+    // Tipo de atividade
     private Long idTipoAtividade;
     private String nomeTipoAtividade;
 

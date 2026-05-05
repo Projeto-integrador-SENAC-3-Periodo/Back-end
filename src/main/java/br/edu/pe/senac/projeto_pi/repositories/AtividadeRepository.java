@@ -30,14 +30,14 @@ public interface AtividadeRepository extends JpaRepository<Atividade, Long> {
                                                @Param("cursoId") Long cursoId);
 
     /**
-     * Total global de horas aprovadas de um aluno (todos os cursos).
+     * Total global de horas aprovadas de um aluno .
      */
     @Query("SELECT COALESCE(SUM(a.horasAprovadas), 0) FROM Atividade a " +
            "WHERE a.aluno.id = :alunoId AND a.status = 'APROVADO'")
     Integer somarHorasAprovadasPorAluno(@Param("alunoId") Long alunoId);
 
     /**
-     * Todas as atividades pendentes de um curso (para o coordenador revisar).
+     * Todas as atividades pendentes de um curso.
      */
     @Query("SELECT a FROM Atividade a WHERE a.curso.idC = :cursoId AND a.status = 'PENDENTE'")
     List<Atividade> findPendentesByCurso(@Param("cursoId") Long cursoId);

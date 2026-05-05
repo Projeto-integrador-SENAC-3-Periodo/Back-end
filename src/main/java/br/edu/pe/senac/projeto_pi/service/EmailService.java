@@ -21,7 +21,7 @@ public class EmailService {
     private static final String SENDER_NAME = "Sistema Senac";
     private final OkHttpClient client = new OkHttpClient();
 
-    // ─── Credenciais de acesso ────────────────────────────────────
+    // Credenciais de acesso
 
     public void enviarCredenciais(String nome, String email, String senhaProvisoria) {
         String html = """
@@ -43,7 +43,7 @@ public class EmailService {
     }
 
     /**
-     * Envia email ao aluno informando que sua atividade foi APROVADA.
+     * Envia email ao aluno informando que sua atividade foi aprovada.
      */
     public void enviarAprovacaoAtividade(String nomeAluno,
                                          String emailAluno,
@@ -86,7 +86,7 @@ public class EmailService {
     }
 
     /**
-     * Envia email ao aluno informando que sua atividade foi REPROVADA,
+     * Envia email ao aluno informando que sua atividade foi reprovada,
      * incluindo o motivo e orientação para reenvio.
      */
     public void enviarReprovacaoAtividade(String nomeAluno,
@@ -130,9 +130,8 @@ public class EmailService {
 
 
     /**
-     * Dispara a chamada HTTP para a API Brevo.
-     * Falhas de envio são logadas mas não propagam exceção
-     * para não interromper o fluxo principal da aplicação.
+     * Manda a chamada HTTP para a API Brevo.
+     * Falhas de envio são logadas mas não propagam exceção para não interromper o fluxo principal da aplicação.
      */
     private void enviar(String destinatario, String assunto, String htmlContent) {
         String json = """

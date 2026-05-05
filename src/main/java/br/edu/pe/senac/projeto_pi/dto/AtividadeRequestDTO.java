@@ -4,10 +4,6 @@ import br.edu.pe.senac.projeto_pi.entity.Atividade;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * Payload enviado pelo ALUNO ao submeter uma atividade com comprovante.
- * O idAluno é resolvido a partir do JWT no serviço — não exposto como campo externo.
- */
 @Getter
 @Setter
 public class AtividadeRequestDTO {
@@ -18,7 +14,7 @@ public class AtividadeRequestDTO {
     /** ID do TipoAtividade selecionado pelo aluno. */
     private Long idTipoAtividade;
 
-    /** Descrição livre da atividade. */
+    /** Descrição da atividade. */
     private String descricao;
 
     /** Quantidade de horas solicitadas pelo aluno. */
