@@ -13,11 +13,15 @@ import br.edu.pe.senac.projeto_pi.dto.UsersResponseDTO;
 import br.edu.pe.senac.projeto_pi.entity.Perfil;
 import br.edu.pe.senac.projeto_pi.entity.Users;
 import br.edu.pe.senac.projeto_pi.repositories.UsersRepository;
+import br.edu.pe.senac.projeto_pi.repositories.UserCursoRepository;
 
 @Service
 public class UsersService {
 
     private final UsersRepository usersRepository;
+
+    @Autowired
+    private UserCursoRepository userCursoRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -234,6 +238,9 @@ public class UsersService {
     public void remover(Long id) {
         Users u = usersRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+
+        // evita erro de foreign key constraint no banco
+        userCursoRepository.deleteAll(userCursoRepository.findByUserId(id));
 
         usersRepository.delete(u);
 
