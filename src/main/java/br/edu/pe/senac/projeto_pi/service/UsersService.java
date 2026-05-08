@@ -51,7 +51,7 @@ public class UsersService {
         this.passwordEncoder = passwordEncoder;
     }
  
-    // GERA SENHA PROVISÓRIA
+    // Gera senha provisória
     private String gerarSenhaProvisoria() {
         String caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         StringBuilder senha = new StringBuilder();
@@ -64,7 +64,7 @@ public class UsersService {
         return senha.toString();
     }
  
-    // CADASTRO DE USUÁRIO COM SENHA AUTOMÁTICA
+    // CADASTRO DE USUÁRIO - com senha automática
     @Transactional
     public Users cadastrarUser(Users usuario) {
  

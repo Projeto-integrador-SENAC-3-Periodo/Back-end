@@ -94,7 +94,7 @@ public class Atividade {
         APROVADO,
         REPROVADO;
 
-        /** Garante que o Jackson serialize como string maiúscula. */
+        /** Garante que o Jackson sempre esteja como string maiúscula. */
         @JsonValue
         public String toValue() { return this.name(); }
 
@@ -116,7 +116,6 @@ public class Atividade {
         PESQUISA,
         EXTENSAO;
 
-        /** Garante que o Jackson serialize como string maiúscula. */
         @JsonValue
         public String toValue() { return this.name(); }
 
