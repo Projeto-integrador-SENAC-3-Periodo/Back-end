@@ -102,6 +102,16 @@ exception/
 
 * MySQL (railway - banco em nuvem)
 
+##  MER E MR (Modelo Relacional e Entidade Relacionamento)
+
+
+<img width="934" height="1401" alt="MR PI - 1 AVA" src="https://github.com/user-attachments/assets/bf315de0-b033-4349-9e11-da6d57985f59" />
+
+
+<img width="2013" height="1284" alt="mer - pi 1 ava" src="https://github.com/user-attachments/assets/167e1c77-469a-4408-a3ce-897d9087f14e" />
+
+
+
 ##  Como Executar o Projeto
 
 ### Pré-requisitos
