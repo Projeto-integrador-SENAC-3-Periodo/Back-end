@@ -10,7 +10,16 @@ FROM eclipse-temurin:17-jdk
 
 WORKDIR /app
 
+# Instalando o Tesseract
+RUN apt-get update && apt-get install -y \
+    tesseract-ocr \
+    tesseract-ocr-por \
+    tesseract-ocr-eng \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=build /app/target/*.jar app.jar
+
 
 EXPOSE 8080
 
