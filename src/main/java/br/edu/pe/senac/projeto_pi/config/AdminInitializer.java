@@ -33,7 +33,7 @@ public class AdminInitializer {
                 usersRepository.save(admin);
 
                 System.out.println("Administrador padrão criado!");
-                System.out.println("Email: admin@sprig.com");
+                System.out.println("Email: admin@senac.com");
                 System.out.println("Senha: admin123");
             }
         };
