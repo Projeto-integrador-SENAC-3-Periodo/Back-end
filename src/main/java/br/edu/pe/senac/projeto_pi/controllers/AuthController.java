@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.edu.pe.senac.projeto_pi.dto.AlterarSenhaRequest;
 import br.edu.pe.senac.projeto_pi.dto.LoginRequest;
+import br.edu.pe.senac.projeto_pi.dto.RecuperarSenhaRequest;
 import br.edu.pe.senac.projeto_pi.dto.LoginResponseDTO;
 import br.edu.pe.senac.projeto_pi.entity.Users;
 import br.edu.pe.senac.projeto_pi.repositories.UsersRepository;
@@ -127,6 +128,21 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
+        }
+    }
+
+    /**
+     * Recupera senha: gera nova senha provisória e envia por email.
+     * POST /auth/recuperar-senha  — público, sem autenticação.
+     */
+    @PostMapping("/recuperar-senha")
+    public ResponseEntity<?> recuperarSenha(@Valid @RequestBody RecuperarSenhaRequest request) {
+        try {
+            usersService.recuperarSenha(request.getIdentificador());
+            // Resposta genérica — não revela se o email existe
+            return ResponseEntity.ok("Se existir uma conta, uma nova senha será enviada por email.");
+        } catch (Exception e) {
+            return ResponseEntity.ok("Se existir uma conta, uma nova senha será enviada por email.");
         }
     }
 }

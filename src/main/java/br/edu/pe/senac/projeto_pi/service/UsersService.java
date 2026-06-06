@@ -249,6 +249,22 @@ public class UsersService {
         );
     }
  
+
+    // RECUPERAR SENHA — gera nova senha provisória e envia por email
+    @Transactional
+    public void recuperarSenha(String identificador) {
+        Users usuario = usersRepository
+            .findByEmailOrMatricula(identificador, identificador)
+            .orElse(null);
+        if (usuario == null) return;
+        String novaSenha = gerarSenhaProvisoria();
+        usuario.setSenha(passwordEncoder.encode(novaSenha));
+        usuario.setSenhaProvisoria(true);
+        usersRepository.save(usuario);
+        emailService.enviarCredenciais(usuario.getNome(), usuario.getEmail(), novaSenha);
+        logService.registrar(usuario, "Solicitou recuperacao de senha", "Auth");
+    }
+
     // REMOVER USUÁRIO
     @Transactional
     public void remover(Long id) {

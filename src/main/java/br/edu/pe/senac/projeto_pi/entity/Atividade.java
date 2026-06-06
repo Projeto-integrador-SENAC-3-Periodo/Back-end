@@ -78,19 +78,14 @@ public class Atividade {
     @Column(name = "data_validacao")
     private LocalDateTime dataValidacao;
 
-    // ─── NOVO: texto extraído pelo OCR do comprovante ─────────────────────────
     /**
-     * Texto bruto extraído pelo Google Vision do comprovante enviado pelo aluno.
+     * Texto bruto extraído pelo Tesseract OCR do comprovante enviado pelo aluno.
      * Preenchido automaticamente no momento do upload — null se OCR estiver
      * desativado ou se a extração falhar.
      */
     @Column(name = "texto_ocr", columnDefinition = "TEXT")
     private String textoOcr;
-
-    /**
-     * Horas detectadas automaticamente pelo OCR.
-     * Serve como sugestão para o coordenador — não substitui horasSolicitadas.
-     */
+    
     @Column(name = "horas_ocr")
     private Integer horasOcr;
 
@@ -100,7 +95,6 @@ public class Atividade {
      */
     @Column(name = "data_ocr", length = 50)
     private String dataOcr;
-    // ──────────────────────────────────────────────────────────────────────────
 
     @PrePersist
     protected void onCreate() {
