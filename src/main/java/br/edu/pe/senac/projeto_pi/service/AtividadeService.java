@@ -42,7 +42,6 @@ public class AtividadeService {
     @Autowired private FileStorageService fileStorageService;
     @Autowired private LogSistemaService logService;
     @Autowired private EmailService emailService;
-    @Autowired private OcrService ocrService;
 
     // Teto de horas do curso
 
@@ -146,13 +145,6 @@ public class AtividadeService {
         String comprovanteUrl = fileStorageService.storeFile(comprovante, atividade.getIdAtividade());
         atividade.setComprovanteUrl(comprovanteUrl);
          
-        // ── OCR: extrai texto/horas/data do comprovante (nunca bloqueia o envio) ────
-        OcrService.OcrResultado ocr = ocrService.processar(comprovante);
-        if (ocr.sucesso()) {
-            atividade.setTextoOcr(ocr.textoCompleto());
-            atividade.setHorasOcr(ocr.horasDetectadas());
-            atividade.setDataOcr(ocr.dataDetectada());
-        }
         atividade = atividadeRepository.save(atividade);
         
 
