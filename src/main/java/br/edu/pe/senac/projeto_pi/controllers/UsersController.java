@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.edu.pe.senac.projeto_pi.dto.CadastroRequest;
 import br.edu.pe.senac.projeto_pi.dto.UsersResponseDTO;
 import br.edu.pe.senac.projeto_pi.dto.UsuarioUpdateRequest;
+import br.edu.pe.senac.projeto_pi.dto.AlunoPerfilUpdateRequest;
 import br.edu.pe.senac.projeto_pi.entity.Atividade;
 import br.edu.pe.senac.projeto_pi.entity.Perfil;
 import br.edu.pe.senac.projeto_pi.entity.Users;
@@ -118,4 +119,19 @@ public class UsersController {
     }
 
 
+
+    /**
+     * Aluno atualiza o proprio perfil (nome e email).
+     * PUT /usuarios/perfil/{id}  — autenticado, qualquer perfil.
+     */
+    @PutMapping("/perfil/{id}")
+    public ResponseEntity<?> atualizarProprioPerfil(
+            @PathVariable Long id,
+            @Valid @RequestBody AlunoPerfilUpdateRequest request) {
+        try {
+            return ResponseEntity.ok(usersService.atualizarProprioPerfil(id, request));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

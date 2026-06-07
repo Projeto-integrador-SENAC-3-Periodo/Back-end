@@ -2,22 +2,23 @@ package br.edu.pe.senac.projeto_pi.service;
  
 import java.security.SecureRandom;
 import java.util.List;
- 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
- 
-import br.edu.pe.senac.projeto_pi.dto.UsuarioUpdateRequest;
+
+import br.edu.pe.senac.projeto_pi.dto.AlunoPerfilUpdateRequest;
 import br.edu.pe.senac.projeto_pi.dto.UsersResponseDTO;
+import br.edu.pe.senac.projeto_pi.dto.UsuarioUpdateRequest;
 import br.edu.pe.senac.projeto_pi.entity.Perfil;
 import br.edu.pe.senac.projeto_pi.entity.Users;
-import br.edu.pe.senac.projeto_pi.repositories.UsersRepository;
-import br.edu.pe.senac.projeto_pi.repositories.UserCursoRepository;
 import br.edu.pe.senac.projeto_pi.repositories.AtividadeRepository;
-import br.edu.pe.senac.projeto_pi.repositories.NotificacaoRepository;
 import br.edu.pe.senac.projeto_pi.repositories.CertificadoRepository;
 import br.edu.pe.senac.projeto_pi.repositories.LogSistemaRepository;
+import br.edu.pe.senac.projeto_pi.repositories.NotificacaoRepository;
+import br.edu.pe.senac.projeto_pi.repositories.UserCursoRepository;
+import br.edu.pe.senac.projeto_pi.repositories.UsersRepository;
  
 @Service
 public class UsersService {
@@ -196,19 +197,7 @@ public class UsersService {
         if (req.getNome() != null && !req.getNome().isBlank()) {
             u.setNome(req.getNome().trim());
         }
- 
-        if (req.getEmail() != null && !req.getEmail().isBlank()) {
-            String email = req.getEmail().trim().toLowerCase();
- 
-            usersRepository.findByEmail(email).ifPresent(other -> {
-                if (!other.getId().equals(id)) {
-                    throw new RuntimeException("E-mail já cadastrado para outro usuário.");
-                }
-            });
- 
-            u.setEmail(email);
-        }
- 
+  
         if (req.getPerfil() != null) {
             u.setPerfil(req.getPerfil());
         }
@@ -249,6 +238,20 @@ public class UsersService {
         );
     }
  
+
+
+    // ALUNO ATUALIZA O PROPRIO PERFIL (nome e email apenas)
+    @Transactional
+    public UsersResponseDTO atualizarProprioPerfil(Long id, AlunoPerfilUpdateRequest req) {
+        Users u = usersRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario nao encontrado."));
+        if (req.getNome() != null && !req.getNome().isBlank()) {
+            u.setNome(req.getNome().trim());
+        }
+        usersRepository.save(u);
+        logService.registrar(u, "Aluno atualizou o proprio perfil", "Users");
+        return new UsersResponseDTO(u.getId(), u.getNome(), u.getEmail(), u.getPerfil().name(), u.getMatricula());
+    }
 
     // RECUPERAR SENHA — gera nova senha provisória e envia por email
     @Transactional
