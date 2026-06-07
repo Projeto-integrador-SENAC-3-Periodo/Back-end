@@ -78,23 +78,6 @@ public class Atividade {
     @Column(name = "data_validacao")
     private LocalDateTime dataValidacao;
 
-    /**
-     * Texto bruto extraído pelo Tesseract OCR do comprovante enviado pelo aluno.
-     * Preenchido automaticamente no momento do upload — null se OCR estiver
-     * desativado ou se a extração falhar.
-     */
-    @Column(name = "texto_ocr", columnDefinition = "TEXT")
-    private String textoOcr;
-    
-    @Column(name = "horas_ocr")
-    private Integer horasOcr;
-
-    /**
-     * Data detectada automaticamente pelo OCR (armazenada como String
-     * para não perder informação de formatos variados).
-     */
-    @Column(name = "data_ocr", length = 50)
-    private String dataOcr;
 
     @PrePersist
     protected void onCreate() {
