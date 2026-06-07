@@ -431,9 +431,6 @@ public class AtividadeService {
         dto.setTentativas(a.getTentativas());
         dto.setDataSubmissao(a.getDataSubmissao());
         dto.setDataValidacao(a.getDataValidacao());
-        dto.setHorasOcr(a.getHorasOcr());
-        dto.setDataOcr(a.getDataOcr());
-        dto.setOcrProcessado(a.getTextoOcr() != null);
         return dto;
     }
 

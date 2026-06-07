@@ -36,15 +36,5 @@ public class AtividadeResponseDTO {
     private Integer tentativas;
     private LocalDateTime dataSubmissao;
     private LocalDateTime dataValidacao;
-    
-    // Horas detectadas automaticamente no comprovante.
-    private Integer horasOcr;
-
-    // Data detectada no comprovante (formato original, ex: "15/03/2025").
-    private String dataOcr;
-
-    // true se o OCR processou o arquivo com sucesso.
-
-    private boolean ocrProcessado;
    
 }
